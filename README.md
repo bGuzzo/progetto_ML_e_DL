@@ -4,6 +4,9 @@
 
 Questo repository contiene il codice e gli esperimenti relativi al mio progetto sperimentale sull'Anomaly Transformer, un'architettura basata sull'attenzione per il rilevamento di anomalie nelle serie temporali. Il progetto è stato realizzato per l'esame di Machine e Deep Learning dell'A.A. 2023/2024.
 
+## Get Started
+* Installare `Python 3.6`, `PyTorch` >= 1.4.0. e CUDA.
+
 ## Contenuto del Repository
 
 *   `model/`: Implementazione PyTorch dell'Anomaly Transformer.
