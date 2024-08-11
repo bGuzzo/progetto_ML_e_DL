@@ -7,7 +7,7 @@ Questo repository contiene il codice e gli esperimenti relativi al mio progetto 
 ## Contenuto del Repository
 
 *   `model/`: Implementazione PyTorch dell'Anomaly Transformer.
-*   `self_attention`: Implementazione PyTorch di un modello con self-attention classica per Anomaly Detection
+*   `self_attention/`: Implementazione PyTorch di un modello con self-attention classica per Anomaly Detection
 *   `solver.py`: Script per addestrare e testare il modello Anomaly Transformer.
 *   `self_att_solver.py`: Script per addestrare e testare il modello con self-attention classica.
 *   `grid_search.py`: (Main file) Implementazione della Grid Search per Anomaly Transformer.
