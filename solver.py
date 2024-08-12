@@ -7,6 +7,7 @@ from data_factory.data_loader import get_loader_segment
 from model import loss_func, optimizer
 from model.AnomalyTransformer import AnomalyTransformer
 from model.kernel import KernelType
+from utils import utils
 from utils.utils import *
 
 
@@ -441,6 +442,9 @@ class Solver(object):
                 "Accuracy : {:0.4f}, Precision : {:0.4f}, Recall : {:0.4f}, F-score : {:0.4f} ".format(
                         accuracy, precision,
                         recall, f_score))
+
+        # Plot heist of sampled test_energy with threshold
+        utils.generate_sampled_plot(test_energy, thresh, title='Anomaly Score (Sampled)', sampling_rate=10)
 
         # return accuracy, precision, recall, f_score
         return {

@@ -8,6 +8,7 @@ from torch.utils.data import DataLoader
 
 from data_factory.data_loader import SMDSegLoader, MSLSegLoader, SMAPSegLoader, PSMSegLoader
 from self_attention.TransformerEncoder import TransformerEncoder
+from utils import utils
 
 
 def adjust_learning_rate(optimizer, epoch, lr_):
@@ -222,6 +223,9 @@ class SelfAttSolver(object):
                 "Accuracy : {:0.4f}, Precision : {:0.4f}, Recall : {:0.4f}, F-score : {:0.4f} ".format(
                         accuracy, precision,
                         recall, f_score))
+
+        # Plot heist of sampled test_energy with threshold
+        utils.generate_sampled_plot(test_energy, thresh, title='Reconstruction Error (Sampled)', sampling_rate=50)
 
         # return accuracy, precision, recall, f_score
         return {
