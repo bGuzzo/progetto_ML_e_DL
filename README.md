@@ -14,9 +14,9 @@ Questo repository contiene il codice e gli esperimenti relativi al mio progetto 
 *   `solver.py`: Script per addestrare e testare il modello Anomaly Transformer.
 *   `self_att_solver.py`: Script per addestrare e testare il modello con self-attention classica.
 *   `grid_search.py`: (Main file) Implementazione della Grid Search per Anomaly Transformer.
-*   `grid_search.py`: (Main file) Implementazione della Grid Search per il modello con self-attention classica.
+*   `grid_search_self_att.py`: (Main file) Implementazione della Grid Search per il modello con self-attention classica.
 *   `results/`: Cartella per salvare i risultati dell'esecuzione della grid search
-*   `relazione/`: Cartella contenente la relazione PDF del progetto
+*   `relazione/`: Cartella contenente la relazione (PDF) e la presentazione del progetto
 
 ## Esperimenti e Confronti
 
