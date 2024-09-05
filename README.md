@@ -5,7 +5,8 @@
 Questo repository contiene il codice e gli esperimenti relativi al mio progetto sperimentale sull'Anomaly Transformer, un'architettura basata sull'attenzione per il rilevamento di anomalie nelle serie temporali. Il progetto è stato realizzato per l'esame di Machine e Deep Learning dell'A.A. 2023/2024.
 
 ## Get Started
-* Installare `Python 3.6`, `PyTorch` >= 1.4.0. e CUDA.
+* Usare Pyhton 3.10/3.12 ed eseguire lo scipt /requirements/install_pkgs.sh
+* Usare un venv o altro ambiente (es. Conda) per evitare di isntallare pacchetti globali!!
 
 ## Contenuto del Repository
 
@@ -17,6 +18,8 @@ Questo repository contiene il codice e gli esperimenti relativi al mio progetto 
 *   `grid_search_self_att.py`: (Main file) Implementazione della Grid Search per il modello con self-attention classica.
 *   `results/`: Cartella per salvare i risultati dell'esecuzione della grid search
 *   `relazione/`: Cartella contenente la relazione (PDF) e la presentazione del progetto
+*   `requirements/install_pkgs.sh`: Script bash per installare i pacchetti necessari (torch e altri)
+*   `requirements/requirements.txt`: File reuqirements di Pyhton, usato dallo scipt `install_pkgs.sh`
 
 ## Esperimenti e Confronti
 
