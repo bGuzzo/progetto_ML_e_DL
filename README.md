@@ -1,49 +1,36 @@
-# Anomaly Transformer: Progetto Sperimentale per l'Esame di Machine e Deep Learning
+### Anomaly Transformer: Experimental Project for the Machine and Deep Learning Exam
 
-## Introduzione
+#### Introduction
 
-Questo repository contiene il codice e gli esperimenti relativi al mio progetto sperimentale sull'Anomaly Transformer, un'architettura basata sull'attenzione per il rilevamento di anomalie nelle serie temporali. Il progetto è stato realizzato per l'esame di Machine e Deep Learning dell'A.A. 2023/2024.
+This repository contains the code and experiments related to my experimental project on the Anomaly Transformer, an attention-based architecture for anomaly detection in time series. The project was carried out for the Machine and Deep Learning exam of the A.Y. 2023/2024.
 
-## Get Started
-* Usare Pyhton 3.10/3.12 ed eseguire lo scipt /requirements/install_pkgs.sh
-* Usare un venv o altro ambiente (es. Conda) per evitare di isntallare pacchetti globali!!
+#### Get Started
 
-## Contenuto del Repository
+*   Use Python 3.10/3.12 and run the script /requirements/install_pkgs.sh
+*   Use a venv or other environment (e.g., Conda) to avoid installing global packages!
 
-*   `model/`: Implementazione PyTorch dell'Anomaly Transformer.
-*   `self_attention/`: Implementazione PyTorch di un modello con self-attention classica per Anomaly Detection
-*   `solver.py`: Script per addestrare e testare il modello Anomaly Transformer.
-*   `self_att_solver.py`: Script per addestrare e testare il modello con self-attention classica.
-*   `grid_search.py`: (Main file) Implementazione della Grid Search per Anomaly Transformer.
-*   `grid_search_self_att.py`: (Main file) Implementazione della Grid Search per il modello con self-attention classica.
-*   `results/`: Cartella per salvare i risultati dell'esecuzione della grid search
-*   `relazione/`: Cartella contenente la relazione (PDF) e la presentazione del progetto
-*   `requirements/install_pkgs.sh`: Script bash per installare i pacchetti necessari (torch e altri)
-*   `requirements/requirements.txt`: File reuqirements di Pyhton, usato dallo scipt `install_pkgs.sh`
+#### Repository Content
 
-## Esperimenti e Confronti
+*   `model/`: PyTorch implementation of the Anomaly Transformer.
+*   `self_attention/`: PyTorch implementation of a model with classic self-attention for Anomaly Detection
+*   `solver.py`: Script to train and test the Anomaly Transformer model.
+*   `self_att_solver.py`: Script to train and test the model with classic self-attention.
+*   `grid_search.py`: (Main file) Implementation of the Grid Search for Anomaly Transformer.
+*   `grid_search_self_att.py`: (Main file) Implementation of the Grid Search for the model with classic self-attention.
+*   `results/`: Folder to save the results of the grid search execution
+*   `relazione/`: Folder containing the project report (PDF) and presentation
+*   `requirements/install_pkgs.sh`: Bash script to install the necessary packages (torch and others)
+*   `requirements/requirements.txt`: Python requirements file, used by the `install_pkgs.sh` script
 
-Il progetto ha incluso i seguenti esperimenti e confronti:
+#### Experiments and Comparisons
 
-*   **Analisi di sensitività degli iperparametri:** Studio dell'impatto degli iperparametri sul modello, in particolare con dimensioni ridotte.
-*   **Algoritmi di ottimizzazione:** Confronto delle prestazioni di diversi algoritmi di ottimizzazione (Adam, AdamW, SGD, Adadelta, RMSprop).
-*   **RNN in combinazione con Anomaly Transformer:** Valutazione dell'uso di LSTM in combinazione con l'Anomaly Transformer.
-*   **Anomaly Attention vs. Self Attention:** Confronto diretto tra il meccanismo di Anomaly Attention e la Self Attention classica.
+The project included the following experiments and comparisons:
 
-## Risultati
+*   **Hyperparameter Sensitivity Analysis:** Study of the impact of hyperparameters on the model, particularly with reduced dimensions.
+*   **Optimization Algorithms:** Comparison of the performance of different optimization algorithms (Adam, AdamW, SGD, Adadelta, RMSprop).
+*   **RNN in combination with Anomaly Transformer:** Evaluation of the use of LSTM in combination with the Anomaly Transformer.
+*   **Anomaly Attention vs. Self Attention:** Direct comparison between the Anomaly Attention mechanism and classic Self Attention.
 
-I risultati degli esperimenti sono riportati nella relazione del progetto. In sintesi, il modello Anomaly Transformer ha dimostrato:
+#### Results
 
-*   **Robustezza:** Buone prestazioni anche con dimensioni ridotte e diverse configurazioni di funzioni e parametri.
-*   **Efficacia:** Superiore ad altri metodi di rilevamento anomalie nelle serie temporali.
-*   **Vantaggio dell'Anomaly Attention:** Miglioramento significativo rispetto all'uso della Self Attention classica.
-
-## Conclusioni
-
-Il progetto ha approfondito la comprensione dell'Anomaly Transformer e ha confermato la sua efficacia nel rilevamento di anomalie nelle serie temporali. Gli esperimenti hanno evidenziato la robustezza del modello e il vantaggio dell'Anomaly Attention rispetto alla Self Attention.
-
-## Riferimenti
-
-*   Xu, J., Wu, H., Wang, J., & Long, M. (2022). Anomaly transformer: Time series anomaly detection with association discrepancy. 
-*   Vaswani, A., Shazeer, N., Parmar, N., Uszkoreit, J., Jones, L., Gomez, A. N., ... & Polosukhin, I. (2017). Attention is all you need. In Advances in neural information processing systems (pp. 5998-6008).
-
+The results of the experiments are reported in the project report.
