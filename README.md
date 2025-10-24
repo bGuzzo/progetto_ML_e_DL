@@ -126,8 +126,7 @@ The final anomaly score is a combination of the reconstruction error and the Ass
 │   └── latext_src/
 ├── relazione/
 │   ├── Presentazione_ML_&_DL.pdf
-│   ├── Relazione_ML_&_DL.pdf
-│   └── Relazione_ML_&_DL.txt
+│   └── Relazione_ML_&_DL.pdf
 ├── requirements/
 │   ├── install_pkgs.sh
 │   └── requirements.txt
