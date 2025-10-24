@@ -105,39 +105,38 @@ The final anomaly score is a combination of the reconstruction error and the Ass
 
 ```
 .
-├── data_factory/
-│   ├── __init__.py
-│   └── data_loader.py
-├── dataset/
-│   └── MSL/
+├── data_factory
+│   ├── data_loader.py
+│   └── __init__.py
+├── dataset
+│   └── MSL
 │       ├── MSL_test_label.npy
 │       ├── MSL_test.npy
 │       └── MSL_train.npy
-├── model/
-│   ├── __init__.py
+├── model
 │   ├── AnomalyTransformer.py
 │   ├── attn.py
 │   ├── embed.py
+│   ├── __init__.py
 │   ├── kernel.py
 │   ├── loss_func.py
 │   └── optimizer.py
-├── paper/
-│   ├── 2110.02642v5.pdf
-│   └── latext_src/
-├── relazione/
-│   ├── Presentazione_ML_&_DL.pdf
-│   └── Relazione_ML_&_DL.pdf
-├── requirements/
+├── paper
+│   └── 2110.02642v5.pdf
+├── relazione
+│   ├── 'Presentazione_ML_&_DL.pdf'
+│   └── 'Relazione_ML_&_DL.pdf'
+├── requirements
 │   ├── install_pkgs.sh
 │   └── requirements.txt
-├── scripts/
+├── scripts
 │   ├── MSL_cust.sh
 │   └── MSL.sh
-├── self_attention/
+├── self_attention
 │   ├── self_att_encoder.py
 │   ├── self_attention.py
 │   └── TransformerEncoder.py
-├── utils/
+├── utils
 │   └── utils.py
 ├── .gitignore
 ├── grid_search.py
