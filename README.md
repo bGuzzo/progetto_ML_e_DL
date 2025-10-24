@@ -13,12 +13,18 @@ This work was developed as a research project for the Machine and Deep Learning 
 
 ## Table of Contents
 - [The Anomaly Transformer Paper](#the-anomaly-transformer-paper)
-- [Introduction](#introduction)
+  - [Abstract](#abstract)
+  - [Introduction](#introduction)
+  - [Methodology](#methodology)
+  - [Experiments](#experiments)
+  - [Conclusion](#conclusion)
+- [Introduction](#introduction-1)
 - [Key Concepts](#key-concepts)
   - [Association Discrepancy](#association-discrepancy)
   - [Minimax Learning Strategy](#minimax-learning-strategy)
 - [Repository Structure](#repository-structure)
 - [Installation](#installation)
+  - [Frameworks](#frameworks)
 - [Usage](#usage)
   - [Training the Anomaly Transformer](#training-the-anomaly-transformer)
   - [Grid Search](#grid-search)
@@ -27,7 +33,7 @@ This work was developed as a research project for the Machine and Deep Learning 
   - [Optimization Algorithm Comparison](#optimization-algorithm-comparison)
   - [Architectural Modifications: Integrating RNNs](#architectural-modifications-integrating-rnns)
   - [Anomaly Attention vs. Standard Self-Attention](#anomaly-attention-vs-standard-self-attention)
-- [Conclusion](#conclusion)
+- [Conclusion](#conclusion-1)
 
 ## The Anomaly Transformer Paper
 
