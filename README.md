@@ -12,6 +12,7 @@ Beyond a faithful implementation of the original model, this repository extends 
 This work was developed as a research project for the Machine and Deep Learning exam at the University of Calabria, and it aims to provide a thorough and well-documented resource for researchers and practitioners interested in advanced time series anomaly detection.
 
 ## Table of Contents
+- [The Anomaly Transformer Paper](#the-anomaly-transformer-paper)
 - [Introduction](#introduction)
 - [Key Concepts](#key-concepts)
   - [Association Discrepancy](#association-discrepancy)
@@ -27,7 +28,6 @@ This work was developed as a research project for the Machine and Deep Learning 
   - [Architectural Modifications: Integrating RNNs](#architectural-modifications-integrating-rnns)
   - [Anomaly Attention vs. Standard Self-Attention](#anomaly-attention-vs-standard-self-attention)
 - [Conclusion](#conclusion)
-- [The Anomaly Transformer Paper](#the-anomaly-transformer-paper)
 
 ## The Anomaly Transformer Paper
 
@@ -99,41 +99,47 @@ The final anomaly score is a combination of the reconstruction error and the Ass
 
 ```
 .
-├── data_factory
-│   ├── data_loader.py
-│   └── __init__.py
-├── dataset
-│   └── MSL
+├── data_factory/
+│   ├── __init__.py
+│   └── data_loader.py
+├── dataset/
+│   └── MSL/
 │       ├── MSL_test_label.npy
 │       ├── MSL_test.npy
 │       └── MSL_train.npy
+├── model/
+│   ├── __init__.py
+│   ├── AnomalyTransformer.py
+│   ├── attn.py
+│   ├── embed.py
+│   ├── kernel.py
+│   ├── loss_func.py
+│   └── optimizer.py
+├── paper/
+│   ├── 2110.02642v5.pdf
+│   └── latext_src/
+├── relazione/
+│   ├── Presentazione_ML_&_DL.pdf
+│   ├── Relazione_ML_&_DL.pdf
+│   └── Relazione_ML_&_DL.txt
+├── requirements/
+│   ├── install_pkgs.sh
+│   └── requirements.txt
+├── scripts/
+│   ├── MSL_cust.sh
+│   └── MSL.sh
+├── self_attention/
+│   ├── self_att_encoder.py
+│   ├── self_attention.py
+│   └── TransformerEncoder.py
+├── utils/
+│   └── utils.py
+├── .gitignore
 ├── grid_search.py
 ├── grid_search_self_att.py
 ├── LICENSE
 ├── main.py
-├── model
-│   ├── AnomalyTransformer.py
-│   ├── attn.py
-│   ├── embed.py
-│   ├── __init__.py
-│   ├── kernel.py
-│   ├── loss_func.py
-│   └── optimizer.py
 ├── README.md
-├── relazione
-│   ├── Presentazione_ML_&_DL.pdf
-│   ├── Relazione_ML_&_DL.pdf
-│   └── Relazione_ML_&_DL.txt
-├── requirements
-│   ├── install_pkgs.sh
-│   └── requirements.txt
-├── scripts
-│   ├── MSL_cust.sh
-│   └── MSL.sh
-├── self_attention
-│   ├── self_att_encoder.py
-│   ├── self_attention.py
-│   └── TransformerEncoder.py
 ├── self_att_solver.py
 └── solver.py
 ```
