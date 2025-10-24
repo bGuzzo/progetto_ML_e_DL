@@ -1,3 +1,10 @@
+"""
+This module provides data loaders for various time series datasets used in the Anomaly Transformer project.
+
+It includes specific loader classes for the PSM, MSL, SMAP, and SMD datasets, which handle the loading, preprocessing, and segmentation of the time series data. The preprocessing steps include standardization using StandardScaler and handling of missing values. The data is then segmented into windows of a specified size, which can be used for training, validation, and testing of the Anomaly Transformer model.
+
+The main function `get_loader_segment` acts as a factory to get the appropriate data loader for a given dataset.
+"""
 import numpy as np
 import pandas as pd
 from sklearn.preprocessing import StandardScaler
@@ -5,7 +12,22 @@ from torch.utils.data import DataLoader
 
 
 class PSMSegLoader(object):
+    """
+    Data loader for the PSM (Pooled Server Metrics) dataset.
+
+    This class handles the loading, preprocessing, and segmentation of the PSM dataset.
+    The data is loaded from CSV files, standardized using StandardScaler, and segmented into windows.
+    """
     def __init__(self, data_path, win_size, step, mode="train"):
+        """
+        Initializes the PSMSegLoader.
+
+        Args:
+            data_path (str): The path to the directory containing the dataset files.
+            win_size (int): The size of the sliding window used for segmentation.
+            step (int): The step size for the sliding window.
+            mode (str): The mode of operation, one of "train", "val", or "test".
+        """
         self.mode = mode
         self.step = step
         self.win_size = win_size
@@ -34,7 +56,9 @@ class PSMSegLoader(object):
 
     def __len__(self):
         """
-        Number of images in the object dataset.
+        Returns the total number of segments in the dataset.
+
+        The number of segments is calculated based on the mode (train, val, or test) and the sliding window parameters.
         """
         if self.mode == "train":
             return (self.train.shape[0] - self.win_size) // self.step + 1
@@ -46,6 +70,15 @@ class PSMSegLoader(object):
             return (self.test.shape[0] - self.win_size) // self.win_size + 1
 
     def __getitem__(self, index):
+        """
+        Retrieves a single segment and its corresponding label from the dataset.
+
+        Args:
+            index (int): The index of the segment to retrieve.
+
+        Returns:
+            tuple: A tuple containing the data segment and its label, both as float32 numpy arrays.
+        """
         index = index * self.step
         if self.mode == "train":
             return np.float32(self.train[index:index + self.win_size]), np.float32(self.test_labels[0:self.win_size])
@@ -61,7 +94,22 @@ class PSMSegLoader(object):
 
 
 class MSLSegLoader(object):
+    """
+    Data loader for the MSL (Mars Science Laboratory) dataset.
+
+    This class handles the loading, preprocessing, and segmentation of the MSL dataset.
+    The data is loaded from .npy files, standardized using StandardScaler, and segmented into windows.
+    """
     def __init__(self, data_path, win_size, step, mode="train"):
+        """
+        Initializes the MSLSegLoader.
+
+        Args:
+            data_path (str): The path to the directory containing the dataset files.
+            win_size (int): The size of the sliding window used for segmentation.
+            step (int): The step size for the sliding window.
+            mode (str): The mode of operation, one of "train", "val", or "test".
+        """
         self.mode = mode
         self.step = step
         self.win_size = win_size
@@ -78,6 +126,11 @@ class MSLSegLoader(object):
         print("train:", self.train.shape)
 
     def __len__(self):
+        """
+        Returns the total number of segments in the dataset.
+
+        The number of segments is calculated based on the mode (train, val, or test) and the sliding window parameters.
+        """
 
         if self.mode == "train":
             return (self.train.shape[0] - self.win_size) // self.step + 1
@@ -89,6 +142,15 @@ class MSLSegLoader(object):
             return (self.test.shape[0] - self.win_size) // self.win_size + 1
 
     def __getitem__(self, index):
+        """
+        Retrieves a single segment and its corresponding label from the dataset.
+
+        Args:
+            index (int): The index of the segment to retrieve.
+
+        Returns:
+            tuple: A tuple containing the data segment and its label, both as float32 numpy arrays.
+        """
         index = index * self.step
         if self.mode == "train":
             return np.float32(self.train[index:index + self.win_size]), np.float32(self.test_labels[0:self.win_size])
@@ -104,7 +166,22 @@ class MSLSegLoader(object):
 
 
 class SMAPSegLoader(object):
+    """
+    Data loader for the SMAP (Soil Moisture Active Passive) dataset.
+
+    This class handles the loading, preprocessing, and segmentation of the SMAP dataset.
+    The data is loaded from .npy files, standardized using StandardScaler, and segmented into windows.
+    """
     def __init__(self, data_path, win_size, step, mode="train"):
+        """
+        Initializes the SMAPSegLoader.
+
+        Args:
+            data_path (str): The path to the directory containing the dataset files.
+            win_size (int): The size of the sliding window used for segmentation.
+            step (int): The step size for the sliding window.
+            mode (str): The mode of operation, one of "train", "val", or "test".
+        """
         self.mode = mode
         self.step = step
         self.win_size = win_size
@@ -122,6 +199,11 @@ class SMAPSegLoader(object):
         print("train:", self.train.shape)
 
     def __len__(self):
+        """
+        Returns the total number of segments in the dataset.
+
+        The number of segments is calculated based on the mode (train, val, or test) and the sliding window parameters.
+        """
 
         if self.mode == "train":
             return (self.train.shape[0] - self.win_size) // self.step + 1
@@ -133,6 +215,15 @@ class SMAPSegLoader(object):
             return (self.test.shape[0] - self.win_size) // self.win_size + 1
 
     def __getitem__(self, index):
+        """
+        Retrieves a single segment and its corresponding label from the dataset.
+
+        Args:
+            index (int): The index of the segment to retrieve.
+
+        Returns:
+            tuple: A tuple containing the data segment and its label, both as float32 numpy arrays.
+        """
         index = index * self.step
         if self.mode == "train":
             return np.float32(self.train[index:index + self.win_size]), np.float32(self.test_labels[0:self.win_size])
@@ -148,7 +239,22 @@ class SMAPSegLoader(object):
 
 
 class SMDSegLoader(object):
+    """
+    Data loader for the SMD (Server Machine Dataset) dataset.
+
+    This class handles the loading, preprocessing, and segmentation of the SMD dataset.
+    The data is loaded from .npy files, standardized using StandardScaler, and segmented into windows.
+    """
     def __init__(self, data_path, win_size, step, mode="train"):
+        """
+        Initializes the SMDSegLoader.
+
+        Args:
+            data_path (str): The path to the directory containing the dataset files.
+            win_size (int): The size of the sliding window used for segmentation.
+            step (int): The step size for the sliding window.
+            mode (str): The mode of operation, one of "train", "val", or "test".
+        """
         self.mode = mode
         self.step = step
         self.win_size = win_size
@@ -164,6 +270,11 @@ class SMDSegLoader(object):
         self.test_labels = np.load(data_path + "/SMD_test_label.npy")
 
     def __len__(self):
+        """
+        Returns the total number of segments in the dataset.
+
+        The number of segments is calculated based on the mode (train, val, or test) and the sliding window parameters.
+        """
 
         if self.mode == "train":
             return (self.train.shape[0] - self.win_size) // self.step + 1
@@ -175,6 +286,15 @@ class SMDSegLoader(object):
             return (self.test.shape[0] - self.win_size) // self.win_size + 1
 
     def __getitem__(self, index):
+        """
+        Retrieves a single segment and its corresponding label from the dataset.
+
+        Args:
+            index (int): The index of the segment to retrieve.
+
+        Returns:
+            tuple: A tuple containing the data segment and its label, both as float32 numpy arrays.
+        """
         index = index * self.step
         if self.mode == "train":
             return np.float32(self.train[index:index + self.win_size]), np.float32(self.test_labels[0:self.win_size])
@@ -190,6 +310,23 @@ class SMDSegLoader(object):
 
 
 def get_loader_segment(data_path, batch_size, win_size=100, step=100, mode='train', dataset='KDD'):
+    """
+    Factory function to create a DataLoader for a specific time series dataset.
+
+    This function selects the appropriate data loader class based on the `dataset` argument,
+    and creates a DataLoader instance with the specified parameters.
+
+    Args:
+        data_path (str): The path to the dataset directory.
+        batch_size (int): The number of samples per batch.
+        win_size (int): The size of the sliding window. Defaults to 100.
+        step (int): The step size for the sliding window. Defaults to 100.
+        mode (str): The mode of operation ('train', 'val', or 'test'). Defaults to 'train'.
+        dataset (str): The name of the dataset to load. One of 'SMD', 'MSL', 'SMAP', 'PSM'. Defaults to 'KDD'.
+
+    Returns:
+        DataLoader: A PyTorch DataLoader instance for the specified dataset.
+    """
     if (dataset == 'SMD'):
         dataset = SMDSegLoader(data_path, win_size, step, mode)
     elif (dataset == 'MSL'):

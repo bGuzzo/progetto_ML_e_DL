@@ -1,3 +1,8 @@
+"""
+This module provides the `Solver` class, which is the core component for training and evaluating the Anomaly Transformer model.
+
+It encapsulates the entire pipeline, including data loading, model construction, the minimax training strategy, and the final evaluation. The solver implements the novel concepts of the Anomaly Transformer, such as the association discrepancy and the minimax loss, to effectively detect anomalies in time series data.
+"""
 import time
 
 import numpy as np
@@ -11,16 +16,30 @@ from utils import utils
 from utils.utils import *
 
 
-# Compute Kullback–Leibler divergence
 def my_kl_loss(p, q):
-    # p and b both matrices NxL
-    # compute the KL divergence for each p(x) and q(x)
+    """
+    Calculates the Kullback-Leibler divergence between two distributions.
+
+    Args:
+        p (torch.Tensor): The first distribution, of shape (N, L).
+        q (torch.Tensor): The second distribution, of shape (N, L).
+
+    Returns:
+        torch.Tensor: The KL divergence for each pair of distributions in the batch.
+    """
     res = p * (torch.log(p + 0.0001) - torch.log(q + 0.0001))
-    # sum the value and do the mean over the L levels
     return torch.mean(torch.sum(res, dim=-1), dim=1)
 
 
 def adjust_learning_rate(optimizer, epoch, lr_):
+    """
+    Adjusts the learning rate of the optimizer during training.
+
+    Args:
+        optimizer (torch.optim.Optimizer): The optimizer.
+        epoch (int): The current epoch number.
+        lr_ (float): The initial learning rate.
+    """
     lr_adjust = {epoch: lr_ * (0.5 ** ((epoch - 1) // 1))}
     if epoch in lr_adjust.keys():
         lr = lr_adjust[epoch]
@@ -30,7 +49,21 @@ def adjust_learning_rate(optimizer, epoch, lr_):
 
 
 class EarlyStopping:
+    """
+    Provides a mechanism for early stopping during training to prevent overfitting.
+
+    The training is stopped if the validation loss does not improve for a specified number of epochs.
+    """
     def __init__(self, patience=7, verbose=False, dataset_name='', delta=0):
+        """
+        Initializes the EarlyStopping mechanism.
+
+        Args:
+            patience (int, optional): The number of epochs to wait for improvement before stopping. Defaults to 7.
+            verbose (bool, optional): If True, prints a message for each validation loss improvement. Defaults to False.
+            dataset_name (str, optional): The name of the dataset, used for saving the checkpoint. Defaults to ''.
+            delta (float, optional): The minimum change in the monitored quantity to qualify as an improvement. Defaults to 0.
+        """
         self.patience = patience
         self.verbose = verbose
         self.counter = 0
@@ -42,8 +75,16 @@ class EarlyStopping:
         self.delta = delta
         self.dataset = dataset_name
 
-    # Called when calling directly the object ref
     def __call__(self, val_loss, val_loss2, model, path):
+        """
+        Checks the early stopping condition and saves the model if the validation loss improves.
+
+        Args:
+            val_loss (float): The validation loss for the maximization phase.
+            val_loss2 (float): The validation loss for the minimization phase.
+            model (nn.Module): The model to be saved.
+            path (str): The path to save the model checkpoint.
+        """
         score = -val_loss
         score2 = -val_loss2
         if self.best_score is None:
@@ -62,6 +103,15 @@ class EarlyStopping:
             self.counter = 0
 
     def save_checkpoint(self, val_loss, val_loss2, model, path):
+        """
+        Saves the model checkpoint.
+
+        Args:
+            val_loss (float): The validation loss for the maximization phase.
+            val_loss2 (float): The validation loss for the minimization phase.
+            model (nn.Module): The model to be saved.
+            path (str): The path to save the model checkpoint.
+        """
         if self.verbose:
             print(f'Validation loss decreased ({self.val_loss_min:.6f} --> {val_loss:.6f}).  Saving model ...')
         torch.save(model.state_dict(), os.path.join(path, str(self.dataset) + '_checkpoint.pth'))
@@ -70,9 +120,21 @@ class EarlyStopping:
 
 
 class Solver(object):
+    """
+    The main solver for training and evaluating the Anomaly Transformer model.
+
+    This class implements the minimax learning strategy, which is the core of the Anomaly Transformer.
+    It handles the data loading, model building, training loop, and evaluation.
+    """
     DEFAULTS = {}
 
     def __init__(self, config):
+        """
+        Initializes the Solver.
+
+        Args:
+            config (dict): A dictionary containing the configuration parameters.
+        """
 
         self.optimizer_name = ""
         self.optimizer = None
@@ -114,25 +176,34 @@ class Solver(object):
 
         self.build_model()
         self.device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
-        # self.criterion = nn.MSELoss()
         self.criterion = loss_func.get_loss_func(self.loss_func_str)
 
     def build_model(self):
+        """
+        Builds the Anomaly Transformer model and the optimizer.
+        """
         self.model = AnomalyTransformer(win_size=self.win_size, enc_in=self.input_c, c_out=self.output_c, e_layers=self.e_layers,
                                         n_heads=self.n_heads, d_model=self.d_model, d_ff=self.d_model, kernel_type=self.kernel_type,
                                         l_lstm=self.l_lstm)
-        # self.optimizer = torch.optim.Adam(self.model.parameters(), lr=self.lr)
         self.optimizer = optimizer.get_optimizer(self.optimizer_name, params=self.model.parameters(), lr=self.lr)
 
         if torch.cuda.is_available():
             self.model.cuda()
 
     def vali(self, vali_loader):
+        """
+        Performs validation during training.
+
+        Args:
+            vali_loader (DataLoader): The data loader for the validation set.
+
+        Returns:
+            tuple: A tuple containing the average validation loss for the maximization and minimization phases.
+        """
         self.model.eval()
 
         loss_1 = []
         loss_2 = []
-        # Do not use labels
         for i, (input_data, _) in enumerate(vali_loader):
             input = input_data.float().to(self.device)
             output, series, prior, _ = self.model(input)
@@ -145,7 +216,7 @@ class Solver(object):
                         my_kl_loss(
                                 (prior[u] / torch.unsqueeze(torch.sum(prior[u], dim=-1), dim=-1).repeat(1, 1, 1,
                                                                                                         self.win_size)).detach(),
-                                series[u])))
+                                series[u]))))
                 prior_loss += (torch.mean(
                         my_kl_loss((prior[u] / torch.unsqueeze(torch.sum(prior[u], dim=-1), dim=-1).repeat(1, 1, 1,
                                                                                                            self.win_size)),
@@ -153,25 +224,22 @@ class Solver(object):
                         my_kl_loss(series[u].detach(),
                                    (prior[u] / torch.unsqueeze(torch.sum(prior[u], dim=-1), dim=-1).repeat(1, 1, 1,
                                                                                                            self.win_size)))))
-            # Association discrepancy for maximize phase
             series_loss = series_loss / len(prior)
-            # Association discrepancy for minimize phase
             prior_loss = prior_loss / len(prior)
 
             rec_loss = self.criterion(output, input)
-            # Maximization Lost
             loss_1.append((rec_loss - self.k * series_loss).item())
-            # Minimization Lost
             loss_2.append((rec_loss + self.k * prior_loss).item())
 
-        # Return Maximization Lost average and Minimization Lost average
         return np.average(loss_1), np.average(loss_2)
 
     def train(self):
+        """
+        Trains the Anomaly Transformer model using the minimax strategy.
+        """
 
         print("======================TRAIN MODE======================")
 
-        # Clean previous model checkpoint
         if os.path.isfile(self.model_checkpoint_path):
             os.remove(self.model_checkpoint_path)
             print(f'Removed previous checkpoint at {self.model_checkpoint_path}')
@@ -195,14 +263,11 @@ class Solver(object):
                 iter_count += 1
                 input = input_data.float().to(self.device)
 
-                # Model return encoded output (reconstruction), Series-Associattion, Prior-Association and Sigmas,
                 output, series, prior, _ = self.model(input)
 
-                # calculate Association discrepancy
                 series_loss = 0.0
                 prior_loss = 0.0
                 for u in range(len(prior)):
-                    # For maximize phase, Prior detached
                     series_loss += (torch.mean(my_kl_loss(series[u], (
                             prior[u] / torch.unsqueeze(torch.sum(prior[u], dim=-1), dim=-1).repeat(1, 1, 1,
                                                                                                    self.win_size)).detach())) + torch.mean(
@@ -210,7 +275,6 @@ class Solver(object):
                                                                                                                self.win_size)).detach(),
                                        series[u])))
 
-                    # For minimize phase, Series detached
                     prior_loss += (torch.mean(my_kl_loss(
                             (prior[u] / torch.unsqueeze(torch.sum(prior[u], dim=-1), dim=-1).repeat(1, 1, 1,
                                                                                                     self.win_size)),
@@ -219,21 +283,17 @@ class Solver(object):
                                     prior[u] / torch.unsqueeze(torch.sum(prior[u], dim=-1), dim=-1).repeat(1, 1, 1,
                                                                                                            self.win_size)))))
 
-                # Association discrepancy for maximize phase
                 series_loss = series_loss / len(prior)
-
-                # Association discrepancy for minimize phase
                 prior_loss = prior_loss / len(prior)
 
-                # Reconstruction loss, difference from the actual series and the reconstructed series
                 rec_loss = self.criterion(output, input)
 
                 loss1_list.append((rec_loss - self.k * series_loss).item())
 
-                # Total loss for maximize phase
+                # Maximization phase
                 loss1 = rec_loss - self.k * series_loss
 
-                # Total loss for minimize phase
+                # Minimization phase
                 loss2 = rec_loss + self.k * prior_loss
 
                 if (i + 1) % 100 == 0:
@@ -243,17 +303,14 @@ class Solver(object):
                     iter_count = 0
                     time_now = time.time()
 
-                # Minimax strategy
-                # Maximize -> optimize the series-association to enlarge the association discrepancy
+                # Minimax optimization
                 loss1.backward(retain_graph=True)
-                # Minimize -> reduce Association Discrepancy, drive the prior association to the series association
                 loss2.backward()
                 self.optimizer.step()
 
             print("Epoch: {} cost time: {}".format(epoch + 1, time.time() - epoch_time))
             train_loss = np.average(loss1_list)
 
-            # This does not use labels
             vali_loss1, vali_loss2 = self.vali(self.test_loader)
 
             print(
@@ -264,14 +321,18 @@ class Solver(object):
                 print("Early stopping")
                 break
             adjust_learning_rate(self.optimizer, epoch + 1, self.lr)
-        # Train End -> Save model checkpoint if not exists
-        # Model not saved yet
+
         if not os.path.isfile(self.model_checkpoint_path):
             torch.save(self.model.state_dict(), self.model_checkpoint_path)
             print(f"Saved model checkpoint at {self.model_checkpoint_path}")
 
     def test(self):
-        # Load pre-trained model
+        """
+        Tests the trained Anomaly Transformer model.
+
+        Returns:
+            dict: A dictionary containing the evaluation metrics.
+        """
         self.model.load_state_dict(
                 torch.load(
                         os.path.join(str(self.model_save_path), str(self.dataset) + '_checkpoint.pth'), weights_only=True, ))
@@ -283,7 +344,6 @@ class Solver(object):
         test_criterion = nn.MSELoss(reduce=False)
 
         # (1) stastic on the train set
-        # Compute the Anomaly Score
         attens_energy = []
         for i, (input_data, _) in enumerate(self.train_loader):
             input = input_data.float().to(self.device)
@@ -315,7 +375,6 @@ class Solver(object):
             attens_energy.append(cri)
 
         attens_energy = np.concatenate(attens_energy, axis=0).reshape(-1)
-        # Final Anomaly-Score for training set
         train_energy = np.array(attens_energy)
 
         # (2) find the threshold
@@ -345,7 +404,6 @@ class Solver(object):
                             (prior[u] / torch.unsqueeze(torch.sum(prior[u], dim=-1), dim=-1).repeat(1, 1, 1,
                                                                                                     self.win_size)),
                             series[u].detach()) * temperature
-            # Metric
             metric = torch.softmax((-series_loss - prior_loss), dim=-1)
             cri = metric * loss
             cri = cri.detach().cpu().numpy()
@@ -353,9 +411,7 @@ class Solver(object):
 
         attens_energy = np.concatenate(attens_energy, axis=0).reshape(-1)
         test_energy = np.array(attens_energy)
-        # Merged Anomaly-Score for training and model set
         combined_energy = np.concatenate([train_energy, test_energy], axis=0)
-        # Assume (100 - self.anomaly_ratio)% of anomalies in the dataset
         thresh = np.percentile(combined_energy, 100 - self.anomaly_ratio)
         print("Threshold :", thresh)
 
@@ -406,7 +462,7 @@ class Solver(object):
         print("pred:   ", pred.shape)
         print("gt:     ", gt.shape)
 
-        # detection adjustment: please see this issue for more information https://github.com/thuml/Anomaly-Transformer/issues/14
+        # detection adjustment
         anomaly_state = False
         for i in range(len(gt)):
             if gt[i] == 1 and pred[i] == 1 and not anomaly_state:
@@ -443,10 +499,8 @@ class Solver(object):
                         accuracy, precision,
                         recall, f_score))
 
-        # Plot heist of sampled test_energy with threshold
         utils.generate_sampled_plot(test_energy, thresh, title='Anomaly Score (Sampled)', sampling_rate=10)
 
-        # return accuracy, precision, recall, f_score
         return {
             'accuracy':  accuracy,
             'precision': precision,

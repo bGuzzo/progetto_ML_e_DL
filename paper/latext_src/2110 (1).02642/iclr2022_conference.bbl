@@ -1,0 +1,347 @@
+\begin{thebibliography}{48}
+\providecommand{\natexlab}[1]{#1}
+\providecommand{\url}[1]{\texttt{#1}}
+\expandafter\ifx\csname urlstyle\endcsname\relax
+  \providecommand{\doi}[1]{doi: #1}\else
+  \providecommand{\doi}{doi: \begingroup \urlstyle{rm}\Url}\fi
+
+\bibitem[Abdulaal et~al.(2021)Abdulaal, Liu, and
+  Lancewicki]{DBLP:conf/kdd/AbdulaalLL21}
+Ahmed Abdulaal, Zhuanghua Liu, and Tomer Lancewicki.
+\newblock Practical approach to asynchronous multivariate time series anomaly
+  detection and localization.
+\newblock \emph{KDD}, 2021.
+
+\bibitem[Adams \& MacKay(2007)Adams and MacKay]{adams2007bayesian}
+Ryan~Prescott Adams and David J.~C. MacKay.
+\newblock Bayesian online changepoint detection.
+\newblock \emph{arXiv preprint arXiv:0710.3742}, 2007.
+
+\bibitem[Anderson \& Kendall(1976)Anderson and
+  Kendall]{Anderson1976TimeSeries2E}
+O.~Anderson and M.~Kendall.
+\newblock Time-series. 2nd edn.
+\newblock \emph{J. R. Stat. Soc. (Series D)}, 1976.
+
+\bibitem[Boniol \& Palpanas(2020)Boniol and Palpanas]{Boniol2020Series2GraphGS}
+Paul Boniol and Themis Palpanas.
+\newblock Series2graph: Graph-based subsequence anomaly detection for time
+  series.
+\newblock \emph{Proc. VLDB Endow.}, 2020.
+
+\bibitem[Breunig et~al.(2000)Breunig, Kriegel, Ng, and
+  Sander]{DBLP:conf/sigmod/BreunigKNS00}
+Markus~M. Breunig, Hans-Peter Kriegel, Raymond~T. Ng, and J{\"o}rg Sander.
+\newblock {LOF}: identifying density-based local outliers.
+\newblock In \emph{SIGMOD}, 2000.
+
+\bibitem[Brown et~al.(2020)Brown, Mann, Ryder, Subbiah, Kaplan, Dhariwal,
+  Neelakantan, Shyam, Sastry, Askell, Agarwal, Herbert-Voss, Krueger, Henighan,
+  Child, Ramesh, Ziegler, Wu, Winter, Hesse, Chen, Sigler, Litwin, Gray, Chess,
+  Clark, Berner, McCandlish, Radford, Sutskever, and
+  Amodei]{NEURIPS2020_1457c0d6}
+Tom Brown, Benjamin Mann, Nick Ryder, Melanie Subbiah, Jared~D Kaplan, Prafulla
+  Dhariwal, Arvind Neelakantan, Pranav Shyam, Girish Sastry, Amanda Askell,
+  Sandhini Agarwal, Ariel Herbert-Voss, Gretchen Krueger, Tom Henighan, Rewon
+  Child, Aditya Ramesh, Daniel Ziegler, Jeffrey Wu, Clemens Winter, Chris
+  Hesse, Mark Chen, Eric Sigler, Mateusz Litwin, Scott Gray, Benjamin Chess,
+  Jack Clark, Christopher Berner, Sam McCandlish, Alec Radford, Ilya Sutskever,
+  and Dario Amodei.
+\newblock Language models are few-shot learners.
+\newblock In \emph{NeurIPS}, 2020.
+
+\bibitem[Chen et~al.(2021)Chen, Chen, Yuan, Cheng, and
+  Zhang]{Chen2021LearningGS}
+Zekai Chen, Dingshuo Chen, Zixuan Yuan, Xiuzhen Cheng, and Xiao Zhang.
+\newblock Learning graph structures with transformer for multivariate time
+  series anomaly detection in iot.
+\newblock \emph{ArXiv}, abs/2104.03466, 2021.
+
+\bibitem[Cheng et~al.(2008)Cheng, Tan, Potter, and Klooster]{Cheng2008ARG}
+Haibin Cheng, Pang-Ning Tan, Christopher Potter, and Steven~A. Klooster.
+\newblock A robust graph-based algorithm for detection and characterization of
+  anomalies in noisy multivariate time series.
+\newblock \emph{ICDM Workshops}, 2008.
+
+\bibitem[Cheng et~al.(2009)Cheng, Tan, Potter, and
+  Klooster]{Cheng2009DetectionAC}
+Haibin Cheng, Pang-Ning Tan, Christopher Potter, and Steven~A. Klooster.
+\newblock Detection and characterization of anomalies in multivariate time
+  series.
+\newblock In \emph{SDM}, 2009.
+
+\bibitem[Deldari et~al.(2021)Deldari, Smith, Xue, and Salim]{deldari2021tscp2}
+Shohreh Deldari, Daniel~V. Smith, Hao Xue, and Flora~D. Salim.
+\newblock Time series change point detection with self-supervised contrastive
+  predictive coding.
+\newblock In \emph{WWW}, 2021.
+
+\bibitem[Deng \& Hooi(2021)Deng and Hooi]{Deng2021GraphNN}
+Ailin Deng and Bryan Hooi.
+\newblock Graph neural network-based anomaly detection in multivariate time
+  series.
+\newblock \emph{AAAI}, 2021.
+
+\bibitem[Devlin et~al.(2019)Devlin, Chang, Lee, and
+  Toutanova]{Devlin2019BERTPO}
+Jacob Devlin, Ming-Wei Chang, Kenton Lee, and Kristina Toutanova.
+\newblock Bert: Pre-training of deep bidirectional transformers for language
+  understanding.
+\newblock In \emph{NAACL}, 2019.
+
+\bibitem[Dosovitskiy et~al.(2021)Dosovitskiy, Beyer, Kolesnikov, Weissenborn,
+  Zhai, Unterthiner, Dehghani, Minderer, Heigold, Gelly, Uszkoreit, and
+  Houlsby]{dosovitskiy2021an}
+Alexey Dosovitskiy, Lucas Beyer, Alexander Kolesnikov, Dirk Weissenborn,
+  Xiaohua Zhai, Thomas Unterthiner, Mostafa Dehghani, Matthias Minderer, Georg
+  Heigold, Sylvain Gelly, Jakob Uszkoreit, and Neil Houlsby.
+\newblock An image is worth 16x16 words: Transformers for image recognition at
+  scale.
+\newblock In \emph{ICLR}, 2021.
+
+\bibitem[Goodfellow et~al.(2014)Goodfellow, Pouget-Abadie, Mirza, Xu,
+  Warde-Farley, Ozair, Courville, and Bengio]{Goodfellow2014GenerativeAN}
+I.~Goodfellow, Jean Pouget-Abadie, Mehdi Mirza, Bing Xu, David Warde-Farley,
+  Sherjil Ozair, Aaron~C. Courville, and Yoshua Bengio.
+\newblock Generative adversarial nets.
+\newblock In \emph{NeurIPS}, 2014.
+
+\bibitem[Huang et~al.(2019)Huang, Vaswani, Uszkoreit, Simon, Hawthorne,
+  Shazeer, Dai, Hoffman, Dinculescu, and Eck]{huang2018music}
+Cheng-Zhi~Anna Huang, Ashish Vaswani, Jakob Uszkoreit, Ian Simon, Curtis
+  Hawthorne, Noam Shazeer, Andrew~M. Dai, Matthew~D. Hoffman, Monica
+  Dinculescu, and Douglas Eck.
+\newblock Music transformer.
+\newblock In \emph{ICLR}, 2019.
+
+\bibitem[Hundman et~al.(2018)Hundman, Constantinou, Laporte, Colwell, and
+  S{\"o}derstr{\"o}m]{Hundman2018DetectingSA}
+Kyle Hundman, Valentino Constantinou, Christopher Laporte, Ian Colwell, and Tom
+  S{\"o}derstr{\"o}m.
+\newblock Detecting spacecraft anomalies using lstms and nonparametric dynamic
+  thresholding.
+\newblock \emph{KDD}, 2018.
+
+\bibitem[Keogh et~al.(Competition of International Conference on Knowledge
+  Discovery \& Data Mining 2021)Keogh, Roy, U, and A]{UCR_Competition}
+Eamonn~J. Keogh, Taposh Roy, Naik U, and Agrawal A.
+\newblock Multi-dataset time-series anomaly detection competition, Competition
+  of International Conference on Knowledge Discovery \& Data Mining 2021.
+\newblock URL \url{https://compete.hexagon-ml.com/practice/competition/39/}.
+
+\bibitem[Kingma \& Ba(2015)Kingma and Ba]{DBLP:journals/corr/KingmaB14}
+Diederik~P. Kingma and Jimmy Ba.
+\newblock Adam: {A} method for stochastic optimization.
+\newblock In \emph{ICLR}, 2015.
+
+\bibitem[Kitaev et~al.(2020)Kitaev, Kaiser, and Levskaya]{kitaev2020reformer}
+Nikita Kitaev, Lukasz Kaiser, and Anselm Levskaya.
+\newblock Reformer: The efficient transformer.
+\newblock In \emph{ICLR}, 2020.
+
+\bibitem[Lai et~al.(2021)Lai, Zha, Xu, and Zhao]{Lai2021RevisitingTS}
+Kwei-Herng Lai, D.~Zha, Junjie Xu, and Yue Zhao.
+\newblock Revisiting time series outlier detection: Definitions and benchmarks.
+\newblock In \emph{NeurIPS Dataset and Benchmark Track}, 2021.
+
+\bibitem[Li et~al.(2019{\natexlab{a}})Li, Chen, Shi, Jin, Goh, and
+  Ng]{Li2019MADGANMA}
+Dan Li, Dacheng Chen, Lei Shi, Baihong Jin, Jonathan Goh, and See-Kiong Ng.
+\newblock Mad-gan: Multivariate anomaly detection for time series data with
+  generative adversarial networks.
+\newblock In \emph{ICANN}, 2019{\natexlab{a}}.
+
+\bibitem[Li et~al.(2019{\natexlab{b}})Li, Jin, Xuan, Zhou, Chen, Wang, and
+  Yan]{2019Enhancing}
+Shiyang Li, Xiaoyong Jin, Yao Xuan, Xiyou Zhou, Wenhu Chen, Yu-Xiang Wang, and
+  Xifeng Yan.
+\newblock Enhancing the locality and breaking the memory bottleneck of
+  transformer on time series forecasting.
+\newblock In \emph{NeurIPS}, 2019{\natexlab{b}}.
+
+\bibitem[Li et~al.(2021)Li, Zhao, Han, Su, Jiao, Wen, and
+  Pei]{DBLP:conf/kdd/LiZHSJWP21}
+Zhihan Li, Youjian Zhao, Jiaqi Han, Ya~Su, Rui Jiao, Xidao Wen, and Dan Pei.
+\newblock Multivariate time series anomaly detection and interpretation using
+  hierarchical inter-metric and temporal embedding.
+\newblock \emph{KDD}, 2021.
+
+\bibitem[Liu et~al.(2008)Liu, Ting, and Zhou]{Liu2008IsolationF}
+F.~Liu, K.~Ting, and Z.~Zhou.
+\newblock Isolation forest.
+\newblock \emph{ICDM}, 2008.
+
+\bibitem[Liu et~al.(2021)Liu, Lin, Cao, Hu, Wei, Zhang, Lin, and
+  Guo]{liu2021Swin}
+Ze~Liu, Yutong Lin, Yue Cao, Han Hu, Yixuan Wei, Zheng Zhang, Stephen
+  Ching-Feng Lin, and Baining Guo.
+\newblock Swin transformer: Hierarchical vision transformer using shifted
+  windows.
+\newblock \emph{ICCV}, 2021.
+
+\bibitem[Mathur \& Tippenhauer(2016)Mathur and
+  Tippenhauer]{DBLP:conf/cpsweek/MathurT16}
+Aditya~P. Mathur and Nils~Ole Tippenhauer.
+\newblock Swat: a water treatment testbed for research and training on {ICS}
+  security.
+\newblock In \emph{CySWATER}, 2016.
+
+\bibitem[Neal(2007)]{Neal2007PatternRA}
+Radford~M. Neal.
+\newblock Pattern recognition and machine learning.
+\newblock \emph{Technometrics}, 2007.
+
+\bibitem[Park et~al.(2018)Park, Hoshi, and
+  Kemp]{DBLP:journals/corr/abs-1711-00614}
+Daehyung Park, Yuuna Hoshi, and Charles~C. Kemp.
+\newblock A multimodal anomaly detector for robot-assisted feeding using an
+  lstm-based variational autoencoder.
+\newblock \emph{RA-L}, 2018.
+
+\bibitem[Paszke et~al.(2019)Paszke, Gross, Massa, Lerer, Bradbury, Chanan,
+  Killeen, Lin, Gimelshein, Antiga, Desmaison, K{\"o}pf, Yang, DeVito, Raison,
+  Tejani, Chilamkurthy, Steiner, Fang, Bai, and Chintala]{Paszke2019PyTorchAI}
+Adam Paszke, S.~Gross, Francisco Massa, A.~Lerer, James Bradbury, Gregory
+  Chanan, Trevor Killeen, Z.~Lin, N.~Gimelshein, L.~Antiga, Alban Desmaison,
+  Andreas K{\"o}pf, Edward Yang, Zach DeVito, Martin Raison, Alykhan Tejani,
+  Sasank Chilamkurthy, Benoit Steiner, Lu~Fang, Junjie Bai, and Soumith
+  Chintala.
+\newblock Pytorch: An imperative style, high-performance deep learning library.
+\newblock In \emph{NeurIPS}, 2019.
+
+\bibitem[Perslev et~al.(2019)Perslev, Jensen, Darkner, Jennum, and
+  Igel]{Utime2019}
+Mathias Perslev, Michael Jensen, Sune Darkner, Poul J\o~rgen Jennum, and
+  Christian Igel.
+\newblock U-time: A fully convolutional network for time series segmentation
+  applied to sleep staging.
+\newblock In \emph{NeurIPS}. 2019.
+
+\bibitem[Ruff et~al.(2018)Ruff, G{\"o}rnitz, Deecke, Siddiqui, Vandermeulen,
+  Binder, M{\"u}ller, and Kloft]{DBLP:conf/icml/RuffGDSVBMK18}
+Lukas Ruff, Nico G{\"o}rnitz, Lucas Deecke, Shoaib~Ahmed Siddiqui, Robert~A.
+  Vandermeulen, Alexander Binder, Emmanuel M{\"u}ller, and M.~Kloft.
+\newblock Deep one-class classification.
+\newblock In \emph{ICML}, 2018.
+
+\bibitem[Schlegl et~al.(2019)Schlegl, Seeb{\"o}ck, Waldstein, Langs, and
+  Schmidt-Erfurth]{Schlegl2019fAnoGANFU}
+T.~Schlegl, Philipp Seeb{\"o}ck, S.~Waldstein, G.~Langs, and
+  U.~Schmidt-Erfurth.
+\newblock f‐anogan: Fast unsupervised anomaly detection with generative
+  adversarial networks.
+\newblock \emph{Med. Image Anal.}, 2019.
+
+\bibitem[Sch{\"o}lkopf et~al.(2001)Sch{\"o}lkopf, Platt, Shawe-Taylor, Smola,
+  and Williamson]{Schlkopf2001EstimatingTS}
+B.~Sch{\"o}lkopf, John~C. Platt, J.~Shawe-Taylor, Alex Smola, and R.~C.
+  Williamson.
+\newblock Estimating the support of a high-dimensional distribution.
+\newblock \emph{Neural Comput.}, 2001.
+
+\bibitem[Shen et~al.(2020)Shen, Li, and Kwok]{DBLP:conf/nips/ShenLK20}
+Lifeng Shen, Zhuocong Li, and James~T. Kwok.
+\newblock Timeseries anomaly detection using temporal hierarchical one-class
+  network.
+\newblock In Hugo Larochelle, Marc'Aurelio Ranzato, Raia Hadsell,
+  Maria{-}Florina Balcan, and Hsuan{-}Tien Lin (eds.), \emph{NeurIPS}, 2020.
+
+\bibitem[Shin et~al.(2020)Shin, Lee, Tariq, Lee, Jung, Chung, and
+  Woo]{Shin2020ITADIT}
+Youjin Shin, Sangyup Lee, Shahroz Tariq, Myeong~Shin Lee, Okchul Jung, Daewon
+  Chung, and Simon~S. Woo.
+\newblock Itad: Integrative tensor-based anomaly detection system for reducing
+  false positives of satellite systems.
+\newblock \emph{CIKM}, 2020.
+
+\bibitem[Su et~al.(2019)Su, Zhao, Niu, Liu, Sun, and Pei]{Su2019RobustAD}
+Ya~Su, Y.~Zhao, Chenhao Niu, Rong Liu, W.~Sun, and Dan Pei.
+\newblock Robust anomaly detection for multivariate time series through
+  stochastic recurrent neural network.
+\newblock \emph{KDD}, 2019.
+
+\bibitem[Tang et~al.(2002)Tang, Chen, Fu, and Cheung]{Tang2002EnhancingEO}
+Jian Tang, Zhixiang Chen, A.~Fu, and D.~Cheung.
+\newblock Enhancing effectiveness of outlier detections for low density
+  patterns.
+\newblock In \emph{PAKDD}, 2002.
+
+\bibitem[Tariq et~al.(2019)Tariq, Lee, Shin, Lee, Jung, Chung, and
+  Woo]{Tariq2019DetectingAI}
+Shahroz Tariq, Sangyup Lee, Youjin Shin, Myeong~Shin Lee, Okchul Jung, Daewon
+  Chung, and Simon~S. Woo.
+\newblock Detecting anomalies in space using multivariate convolutional lstm
+  with mixtures of probabilistic pca.
+\newblock \emph{KDD}, 2019.
+
+\bibitem[Tax \& Duin(2004)Tax and Duin]{Tax2004SupportVD}
+D.~Tax and R.~Duin.
+\newblock Support vector data description.
+\newblock \emph{Mach. Learn.}, 2004.
+
+\bibitem[Tibshirani et~al.(2001)Tibshirani, Walther, and
+  Hastie]{Tibshirani2000EstimatingTN}
+Robert Tibshirani, Guenther Walther, and Trevor Hastie.
+\newblock Estimating the number of clusters in a dataset via the gap statistic.
+\newblock \emph{J. R. Stat. Soc. (Series B)}, 2001.
+
+\bibitem[Vaswani et~al.(2017)Vaswani, Shazeer, Parmar, Uszkoreit, Jones, Gomez,
+  Kaiser, and Polosukhin]{NIPS2017_3f5ee243}
+Ashish Vaswani, Noam Shazeer, Niki Parmar, Jakob Uszkoreit, Llion Jones,
+  Aidan~N Gomez, \L~ukasz Kaiser, and Illia Polosukhin.
+\newblock Attention is all you need.
+\newblock In \emph{NeurIPS}, 2017.
+
+\bibitem[Wu et~al.(2021)Wu, Xu, Wang, and Long]{wu2021autoformer}
+Haixu Wu, Jiehui Xu, Jianmin Wang, and Mingsheng Long.
+\newblock Autoformer: Decomposition transformers with {Auto-Correlation} for
+  long-term series forecasting.
+\newblock In \emph{NeurIPS}, 2021.
+
+\bibitem[Xu et~al.(2018)Xu, Chen, Zhao, Li, Bu, Li, Liu, Zhao, Pei, Feng, Chen,
+  Wang, and Qiao]{Xu2018UnsupervisedAD}
+Haowen Xu, Wenxiao Chen, N.~Zhao, Zeyan Li, Jiahao Bu, Zhihan Li, Y.~Liu,
+  Y.~Zhao, Dan Pei, Yang Feng, Jian~Jhen Chen, Zhaogang Wang, and Honglin Qiao.
+\newblock Unsupervised anomaly detection via variational auto-encoder for
+  seasonal kpis in web applications.
+\newblock \emph{WWW}, 2018.
+
+\bibitem[Yairi et~al.(2017)Yairi, Takeishi, Oda, Nakajima, Nishimura, and
+  Takata]{Yairi2017ADH}
+Takehisa Yairi, Naoya Takeishi, Tetsuo Oda, Yuta Nakajima, Naoki Nishimura, and
+  Noboru Takata.
+\newblock A data-driven health monitoring method for satellite housekeeping
+  data based on probabilistic clustering and dimensionality reduction.
+\newblock \emph{IEEE Trans. Aerosp. Electron. Syst.}, 2017.
+
+\bibitem[Zhao et~al.(2020)Zhao, Wang, Duan, Huang, Cao, Tong, Xu, Bai, Tong,
+  and Zhang]{Zhao2020MultivariateTA}
+Hang Zhao, Yujing Wang, Juanyong Duan, Congrui Huang, Defu Cao, Yunhai Tong,
+  Bixiong Xu, Jing Bai, Jie Tong, and Qi~Zhang.
+\newblock Multivariate time-series anomaly detection via graph attention
+  network.
+\newblock \emph{ICDM}, 2020.
+
+\bibitem[Zhou et~al.(2019)Zhou, Liu, Hooi, Cheng, and Ye]{Zhou2019BeatGANAR}
+Bin Zhou, Shenghua Liu, Bryan Hooi, Xueqi Cheng, and Jing Ye.
+\newblock Beatgan: Anomalous rhythm detection using adversarially generated
+  time series.
+\newblock In \emph{IJCAI}, 2019.
+
+\bibitem[Zhou et~al.(2021)Zhou, Zhang, Peng, Zhang, Li, Xiong, and
+  Zhang]{haoyietal-informer-2021}
+Haoyi Zhou, Shanghang Zhang, Jieqi Peng, Shuai Zhang, Jianxin Li, Hui Xiong,
+  and Wancai Zhang.
+\newblock Informer: Beyond efficient transformer for long sequence time-series
+  forecasting.
+\newblock In \emph{AAAI}, 2021.
+
+\bibitem[Zong et~al.(2018)Zong, Song, Min, Cheng, Lumezanu, Cho, and
+  Chen]{DBLP:conf/iclr/ZongSMCLCC18}
+Bo~Zong, Qi~Song, Martin~Renqiang Min, Wei Cheng, Cristian Lumezanu, Dae{-}ki
+  Cho, and Haifeng Chen.
+\newblock Deep autoencoding gaussian mixture model for unsupervised anomaly
+  detection.
+\newblock In \emph{ICLR}, 2018.
+
+\end{thebibliography}

@@ -1,0 +1,937 @@
+Bruno Guzzo (Mat. 242504) - UNICAL - Esame di Machine e Deep Learning - A.A. 2023/2024
+Anomaly Transformer: un'architettura basata sull'attenzione per il
+rilevamento di anomalie nelle serie temporali
+Introduzione
+Il rilevamento di anomalie nelle serie temporali è un compito cruciale in diversi ambiti
+applicativi, come il monitoraggio di sistemi, l'esplorazione spaziale e il trattamento delle
+acque. L'obiettivo è identificare osservazioni o pattern che deviano significativamente dal
+comportamento normale del sistema, segnalando potenziali problemi o guasti.
+Tradizionalmente, questo problema è stato affrontato con tecniche statistiche classiche o
+modelli di deep learning basati su reti neurali ricorrenti (RNN). Tuttavia, queste
+metodologie presentano limitazioni nella capacità di catturare relazioni a lungo termine e
+di distinguere in modo efficace anomalie rare da normali fluttuazioni nei dati.
+L'Anomaly Transformer, proposto da Jiehui Xu et al. (2022), rappresenta un'innovativa
+architettura di rete neurale basata sul meccanismo dell'attenzione, progettata
+specificamente per il rilevamento di anomalie nelle serie temporali in modo non
+supervisionato. L'idea chiave alla base di questo modello è che le anomalie, a causa della
+loro rarità, hanno difficoltà a stabilire associazioni significative con l'intera serie temporale,
+concentrando le loro relazioni principalmente sui punti temporali adiacenti. Questa
+intuizione, definita come "bias di concentrazione adiacente" (adjacent-concentration bias),
+fornisce un criterio discriminante intrinseco tra punti normali e anomali, che gli autori
+sfruttano attraverso il concetto di "Associazione Discrepanza" (Association Discrepancy).
+Il meccanismo dell'attenzione
+Prima di addentrarci nei dettagli dell'Anomaly Transformer, è fondamentale comprendere
+il meccanismo dell'attenzione, che costituisce il nucleo di questa architettura e, più in
+generale, dei modelli Transformer. L'attenzione, introdotta nel celebre articolo "Attention
+Is All You Need" di Vaswani et al. (2017), ha rivoluzionato il campo dell'elaborazione del
+linguaggio naturale e si è dimostrata efficace anche in altri domini, come la visione
+artificiale e l'analisi delle serie temporali.
+In sostanza, l'attenzione consente a un modello di pesare dinamicamente l'importanza di
+diverse parti dell'input durante l'elaborazione di ogni elemento dell'output. Questo
+meccanismo permette di catturare relazioni a lungo termine e di modellare dipendenze
+complesse tra elementi distanti nella sequenza, superando le limitazioni delle reti neurali
+ricorrenti tradizionali (RNN).
+Matematicamente, l'attenzione può essere descritta come una funzione che mappa una
+query e un insieme di coppie chiave-valore in un output, dove query, chiavi, valori e output
+sono tutti vettori. L'output viene calcolato come una somma pesata dei valori, dove il peso
+1
+Bruno Guzzo (Mat. 242504) - UNICAL - Esame di Machine e Deep Learning - A.A. 2023/2024
+assegnato a ciascun valore è determinato da una funzione di compatibilità tra la query e la
+chiave corrispondente. Una delle implementazioni più comuni dell'attenzione è la "Scaled
+Dot-Product Attention", descritta dall'equazione:
+T
+Attention(Q, K, V)
+=
+softmaxV
+d.
+dove:
+•
+Q è la matrice delle query
+•
+Kè la matrice delle chiavi
+•
+V è la matrice dei valori
+•
+d, è la dimensione delle chiavi
+k
+Questa formula calcola l'attenzione su un insieme di query simultaneamente. In primo
+luogo, vengono calcolati i prodotti scalari tra la query e tutte le chiavi, che vengono poi
+saldati per d
+√ak
+d, e normalizzati tramite la funzione softmax per ottenere i pesi da applicare
+ai valori. La somma pesata dei valori produce infine l'output dell'attenzione. Il fattore di
+scala √d aiuta a stabilizzare i gradienti durante l'addestramento.
+k
+Un'estensione dell'attenzione è la self-attention multi-head, la quale permette al modello
+di considerare simultaneamente diverse rappresentazioni dello stesso input. In pratica,
+invece di eseguire una singola funzione di attenzione, vengono eseguite diverse funzioni di
+attenzione in parallelo, ciascuna su una proiezione lineare diversa dell'input. I risultati di
+queste attenzioni parallele vengono poi combinati per produrre l'output finale.
+MultiHead(Q, K, V) = Concat(head₁, ..., head)W
+Dove head.
+n
+V
+head = Attention(QWKWvw)
+i
+Scaled Dot-Product Attention
+MatMul
+SoftMax
+↑
+Mask (opt.)
+Scale
+MatMul
+↑
+Q
+K
+V
+V
+Multi-Head Attention
+Linear
+Concat
+Scaled Dot-Product
+Attention
+Linear Linear Linear
+K
+!
+Q
+h
+2
+Bruno Guzzo (Mat. 242504) - UNICAL - Esame di Machine e Deep Learning - A.A. 2023/2024
+Architettura classical del Transformer
+Il Transformer adotta una struttura encoder-decoder, comune nei modelli di trasduzione di
+sequenze. L'encoder elabora la sequenza di input e la mappa in una rappresentazione
+continua, mentre il decoder genera la sequenza di output un elemento alla volta, basandosi
+sulla rappresentazione dell'encoder e sugli output precedentemente generati.
+Sia l'encoder che il decoder sono composti da stack di layer identici. Ogni layer
+dell'encoder contiene due sub-layer: un meccanismo di self-attention multi-head e un
+semplice feed-forward network completamente connesso. Ogni layer del decoder contiene
+tre sub-layer: i due sub-layer dell'encoder più un ulteriore sub-layer di attenzione
+encoder-decoder multi-head.
+Output
+Probabilities
+Softmax
+Linear
+Nx
+Add & Norm
+Feed
+Forward
+Add & Norm
+Multi-Head
+Attention
+Add & Norm
+Feed
+Forward
+Add & Norm
+Multi-Head
+Attention
+Add & Norm
+Masked
+Multi-Head
+Attention
+Nx
+Positional
+Encoding
+Input
+Embedding
+Inputs
+Output
+Embedding
+Outputs
+(shifted right)
+Positional
+Encoding
+Figura 1: Transformer - architettura
+Il Transformer utilizza la self-attention in tre modi diversi:
+1. Self-attention nell'encoder: consente a ciascuna posizione nell'encoder di prestare
+attenzione a tutte le posizioni nel layer precedente dell'encoder.
+2. Self-attention nel decoder: consente a ciascuna posizione nel decoder di prestare
+attenzione a tutte le posizioni nel decoder fino a quella posizione inclusa. Questo è
+necessario per mantenere la proprietà autoregressiva del decoder.
+3
+Bruno Guzzo (Mat. 242504) - UNICAL - Esame di Machine e Deep Learning - A.A. 2023/2024
+3. Attenzione encoder-decoder: consente a ciascuna posizione nel decoder di
+prestare attenzione a tutte le posizioni nella sequenza di input.
+Codifica Poszionale
+Poiché il Transformer non ha ricorrenza né convoluzione, non ha una nozione intrinseca
+dell'ordine delle parole in una sequenza. Per ovviare a questo, il modello utilizza una
+"codifica posizionale" che viene aggiunta agli embeddings di input in fondo agli stack
+dell'encoder e del decoder. Questa codifica fornisce al modello informazioni sulla
+posizione relativa o assoluta dei token nella sequenza.
+2i/d
+PE(pos, 2i) = sin(pos/10000 model)
+2i/d
+PE(pos, 2i + 1) = cos(pos/10000 model)
+L'architettura dell'Anomaly Transformer
+Grad
+Prior-
+Minimize
+Discrepancy
+G(j-1;01) Rescale Association
+σ (1 – 21; 02)
+Q
+G(j – Νι;ση)
+MatMul
+K
+Scale
+SoftMax
+人
+Stop
+Grad
+Series-
+Association
+Maximize
+Discrepancy
+Grad
+MatMul
+X
+Linea V
+Linear
+Reconstruction
+Layer Norm
++
+Lxj
+Feed
+Forward
+Layer Norm
+Anomaly
+Attention
+L'Anomaly Transformer¹, illustrato in figura, segue una struttura simile ai modelli
+Transformer ma priva di decoder e che introduce un nuovo meccanismo di attenzione
+chiamato Anomaly Attention per calcolare la discrepanza di associazione (Association
+Discrepancy). Questo meccanismo, cuore dell'Anomaly Transformer, è progettato per
+modellare sia l'associazione a priori (prior-association) che l'associazione di serie
+(series-association) di ciascun punto temporale.
+Il modello fa uso di uno stack di livelli (L, tipicamente 3) di Anomaly Transformer
+ciascuno dei quali fa uso di più multi-head (h, tipicamente 8) Anomaly Attention per
+1
+Per i dettagli implementativi del modello Anomaly Transformer fare riferimento al package model del
+progetto Python allegato al presente documento.
+4
+Bruno Guzzo (Mat. 242504) - UNICAL - Esame di Machine e Deep Learning - A.A. 2023/2024
+processare l'input (h = 8).
+Formalmente, data in input la serie X ∈ R
+Dove X ∈ R
+Nxd
+Nxd
+il modello si definisce come:
+Z' = LayerNorm(AnomalyAttention(X-1) + x²-1)
+model
+X' = LayerNorm(FeedForward(Z') + z')
+0
+Nxd
+rappresenta l'output del livello l-esimo con d
+rappresenta il livello 1-esimo nascosto e X ER
+primo livello del modello.
+model
+canali, Z∈ R model
+Nxd
+model
+= Embedding(X) è l'input dato al
+L'associazione a priori (prior-association) rappresenta il bias di concentrazione adiacente,
+catturato da un kernel gaussiano con un parametro di scala o apprendibile. Rappresenta una
+misura dell'associazione dei punti temporali con i loro vicini.
+L'associazione di serie (series-association), invece, viene appresa direttamente dai dati
+grezzi attraverso il meccanismo di self-attention e rappresenta una misura dell'associazione
+dei punti temporali con il resto della serie.
+1
+Inizializzazione: Q, K, V, σ = Χ
+= xwx
+Q'
+K'
+V'
+σ
+Prior-Association: P′ = Rescale
+=([-
+Series-Association: S' = softmax
+2 = s'v
+Reconstruction: Z
+Dove:
+V
+1
+2πσ
+QKT
+d
+model
+[j-il²
+2
+-exp
+2
+20
+i
+i,je{1,..,N}/
+Nxd
+•
+Q, K, VER
+•
+•
+•
+•
+model
+,
+Nx1
+σε R sono i comuni parametri della self-attention con
+l'aggiunta del parametro appreso di scala
+o W
+K'
+d
+WERmodel
+σ
+P', S∈ R
+NxN
+V
+x1
+d
+R modelxd model
+Rescale è la divisione delle righe della matrice data per la somma delle stesse.
+d
+model
+Nx
+Nxh
+Nella versione multi-head proposta dagli autori si ha Q, K, V ∈ R
+, σε R
+per h
+5
+Bruno Guzzo (Mat. 242504) - UNICAL - Esame di Machine e Deep Learning - A.A. 2023/2024
+head di Anomaly Attention. I blocchi uniscono l'output dei livelli nascosti Z per ottenere
+il risultato finale (ricostruzione) Z.
+m
+Il risultato finale fornito dal modello X è la serie temporale "ricostruita", ovvero la serie
+temporale processata dal modello. Essa rappresenta informalmente una serie derivata da
+quella fornita in ingresso utile per rilevare le anomalie sotto opportune elaborazioni.
+La discrepanza tra prior-association e series-association costituisce la base per il
+rilevamento delle anomalie. Formalmente, l'Associazione Discrepanza (Association
+Discrepancy) è definita come la divergenza Kullback-Leibler simmetrizzata tra
+l'associazione a priori e l'associazione di serie per tutti i livelli usati.
+L
+AssDis(P, S; X) = ∑(KL(P\S
+Nx1
+l=1
++
+i,:
+i=1,...,N
+Dove AssDis(P, S; X) ∈ R è la l'Associazione Discrepanza per ogni punto della serie
+temporale e KL(P,Q) = ∑ (P(x)log(P(x))). (x))). Puntualmente, le anomalie presentano un
+XEX
+basso valore di Associazione Discrepanza, infatti la divergenza Kullback-Leibler è una
+misura della similarità tra due distribuzioni di probabilità e nel caso di anomalie si ottiene
+una differenza tra le distribuzioni prior-association e series-association. Infatti, le
+anomalie non riescono a stabilire associazioni significative con l'intera serie temporale
+(series-association) ma solo con i punti a loro vicini (prior-association).
+Apprendimento Minimax dell'Associazione
+Per migliorare la capacità del modello di distinguere tra punti normali e anomali, gli autori
+propongono una strategia di apprendimento minimax. Questa strategia mira ad amplificare
+la discrepanza di associazione tra i due tipi di punti (anomali e non).
+• Fase di minimizzazione: In questa fase, la prior-association viene guidata ad
+approssimare la series-association appresa dai dati grezzi. Questo processo
+consente alla prior-association di adattarsi ai diversi pattern temporali presenti nei
+dati.
+• Fase di massimizzazione: In questa fase, la series-association viene ottimizzata
+per aumentare la discrepanza di associazione. Questo spinge la series-association a
+concentrarsi maggiormente su relazioni a lungo termine, rendendo più difficile la
+ricostruzione delle anomalie e, di conseguenza, più facile la loro identificazione.
+La funzione di perdita complessiva del modello incorpora sia l'errore di ricostruzione che
+6
+Bruno Guzzo (Mat. 242504) - UNICAL - Esame di Machine e Deep Learning - A.A. 2023/2024
+la discrepanza di associazione, bilanciate da un iper-parametro λ:
+L
+total
+2
+(X, P, S, A; X) = \X – X||² – ||AssDis(P, S; X)||₁
+1
+In particolare nelle fasi di minimizzazione e massimizzazione si usano due varianti della
+funzione di perdita:
+• Minimizzazione: L
+(X, P, S
+total
+detach'
+λ; Χ)
+• Massimizzazione: L
+(X, P
+S, λ; Χ)
+total
+detach
+Dove detach significa fermare la backpropagation del gradiente, ovvero nelle fasi di
+minimizzazione e massimizzazione si fissano rispettivamente i gradienti relativi ai persi per
+la a series-association e la prior-association. Questo consente che la fase di
+massimizzazione o minimizzazione impatti una sola delle due *-association.
+Criterio di anomalia basato sull'associazione
+Il criterio finale per il rilevamento di anomalie combina la discrepanza di associazione
+normalizzata con il criterio di ricostruzione:
+AnomalyScore(X) = Softmax(- AssDis(P, S; X)) X
+2
+1,:
+X
+i,:
+2
+i=1,...,N
+Dove è il prodotto elemento per elemento. Questo criterio sfrutta sia le informazioni sulla
+rappresentazione temporale che sulla discrepanza di associazione, consentendo al modello
+di rilevare anomalie in modo più accurato ed efficace.
+La classificazione finale dei punti anomali si effettua stabilendo una soglia 8 sul valore di
+anomaly-score oltre la quale il punto temporale è identificato come anomalo. Ci sono varie
+strategie per definire questa soglia, gli autori propongono di usare K-Means con il metodo
+della Gap Statistics (Tibshirani et al., 2001) per trovare il cluster non il maggiore anomaly
+score e definire 8 in modo da catturare gli r punti nel cluster.
+7
+Bruno Guzzo (Mat. 242504) - UNICAL - Esame di Machine e Deep Learning - A.A. 2023/2024
+Analisi di sensitività degli iperparametri sul modello Anomaly
+Transformer
+Sebbene gli autori del modello Anomaly Transformer abbiano studiato la sensitività degli
+iperparametri del modello, si effettua comunque uno studio in tal senso mirato alla scoperta
+del comportamento del modello quando non è possibile usare un alta dimensionalità d model
+uguale o superiore 512. Nello specifico, si è deciso di procedere con la grid search in
+modo da testare tutti i parametri scelti facendo uso del solo dataset MSL (Mars Science
+Laboratory) a causa della lunghezza e della potenza di calcolo richiesta dalla procedura.
+d
+model
+Specifichiamo inoltre che, dati i lunghi tempi di training del modello, si è deciso di ridurre
+a 64 e il numero di epoch di training a sole 2. Tale decisione è giustificata dai
+seguenti dati sperimentali, infatti cambiano solo gli iperparametri specificati e lasciano gli
+altri come suggerito dagli autori, ovvero:
+• Learning rate: 10
+• Lambda λ: 1, 3
+• Anomaly ratio: 1
+-4
+•
+Batch Size: 128
+• Numero di livelli 1: 3
+• Numero di attention heads h: 8
+• Tipo di Kernel: Gaussiano
+•
+Funzione di perdita: Norma L2 (MSE)
+Non si ottiene una differenza sostanziale in termini di prestazioni predittive del modello.
+Accuracy
+Precision
+Recall
+F-Score
+d
+model
+512
+0.9845047
+0.9181818
+0.9363893
+0.9271962
+epoch = 3
+d
+model
+= 64
+0.9865807
+0.9205660
+0.9550605
+0.9374961
+epoch = 2
+Questo risultato evidenzia che nel caso di dati ad alta dimensionalità, come nel caso del
+dataset MSL con d = 55, anche a fronte di una sostanziale riduzione della dimensionalità
+del modello si ottengono ottime performance predittive.
+8
+Bruno Guzzo (Mat. 242504) - UNICAL - Esame di Machine e Deep Learning - A.A. 2023/2024
+Dunque, le configurazioni di funzioni e iperparametri usate sono le seguenti:
+• Learning rate: 10
+• Lambda λ: 0.5, 3
+• Anomaly ratio: 1
+• Epochs: 2
+-4
+•
+Batch Size: 128
+•
+Dimensione d
+64
+model
+•
+Numero di livelli 1: 3
+• Numero di attention heads h: 8
+• Tipo di Kernel: Gaussiano, No (prior-association come parametro appreso) e
+sigmoide.
+Funzione di perdita³: Norma L1, Norma L2 (MSE), Cross Entropy e Divergenza
+•
+KL
+Per un totale di 24 possibili combinazioni totali.
+Dove, data la distanza dist.
+=
+i,j
+|i – İli,j∈[1,..] e il parametro appreso σ₁ le funzioni usate
+come kernel sono
+Gaussian = exp(-
+1
+2πσ.
+i
+dist
+2σ
+i
+2
+i,je{1,..,N}
+NO = Softmax(σ, dim =− 1)
+Sigmoid = tanh(dist * σ)
+i
+La migliore combinazione trovata in termini di funzioni e iperparametri in base alla
+metrica f-score è la seguente.
+• Learning rate: 10
+• Lambda λ: 3
+• Anomaly ratio: 1
+• Epochs: 2
+• Batch Size: 128
+-4
+2
+Tali configurazioni sono limitate dall'hardware a disposizione, infatti si dispone di una Nvidia RTX 4060
+con soli 8GB di memoria video a fronte di una RTX Titan da 24GB usata dagli autori.
+3
+Per i dettagli implementativi delle funzioni di perdita usate rimandiamo alla visione della documentazione
+del package torch.nn disponibile qui.
+9
+Bruno Guzzo (Mat. 242504) - UNICAL - Esame di Machine e Deep Learning - A.A. 2023/2024
+• Dimensione d : 64
+model
+• Numero di livelli 1: 3
+• Numero di attention heads h: 8
+•
+Tipo di Kernel: No (prior-association come parametro appreso).
+•
+Funzione di perdita: Divergenza KL
+Le metriche di classificazione ad essa associata sono:
+Accuracy
+0.9890773
+Precision
+Recall
+F-Score
+Train Time (s)
+0.9209094
+0.9805563
+0.9497973
+160.2966
+Basandosi sulla metrica F-Score possiamo osservare un miglioramento dello 1,23%
+rispetto a quanto ottenuto usando gli iperparametri suggeriti dagli autori, tuttavia questa
+piccola differenza potrebbe essere dovuta ad una marginale randomicità presente nelle
+implementazioni (pytorch) dei metodi descritti. Infatti, eseguendo altre due volte il
+processo di training e test la media della metrica F-Score ammonta a 0,936436. Questo
+evidenzia come non vi sia un concreto e significativo miglioramento delle prestazioni
+rispetto all'uso degli iperparametri consigliati dagli autori.
+Inoltre, sempre in termini di F-Score i valori prodotti dalle singole configurazioni testate
+nella grid search variano da ≈ 0,91 a ≈ 0,949, dunque non solo non si evidenzia alcun
+sostanziale miglioramento ma si evidenzia soprattutto la robustezza del modello a varie
+configurazioni di funzioni e parametri. Ipotizziamo che questa particolare proprietà del
+modello sia dovuta alla struttura minimax che in fase di training riesce comunque a guidare
+il modello verso un'ottima identificazione delle anomalie.
+10
+Bruno Guzzo (Mat. 242504) - UNICAL - Esame di Machine e Deep Learning - A.A. 2023/2024
+Algoritmi di ottimizzazione per il modello Anomaly Transformer
+L'algoritmo di ottimizzazione scelto dagli autori è ADAM (Adaptive Moment Estimation),
+ovvero un algoritmo che si basa sulla stima adattiva dei momenti del primo e del secondo
+ordine dei gradienti. In particolare ADAM risulta essere ben adatto a problemi di grandi
+dimensioni e computazionalmente efficiente in termini di tempo e memoria.
+Analizziamo ora in termini di metriche per la predizione e tempo di training le prestazioni
+offerte anche da altri algoritmi di ottimizzazione, in particolare concentriamo la nostra
+attenzione sui seguenti⁴.
+• SGD (Stochastic Gradient Descent): Un ottimizzatore di base che aggiorna i
+parametri in base al gradiente negativo della funzione di perdita. Può essere
+combinato con tecniche come momentum e weight decay.
+• RMSprop (Root Mean Square Propagation): Mantiene una media mobile
+esponenziale del quadrato dei gradienti passati e divide il gradiente per la radice
+quadrata di questa media. Questo aiuta ad affrontare il problema dei gradienti che
+scompaiono o esplodono.
+• Adadelta: Simile ad Adagrad (Adaptive Gradient Algorithm), adatta la velocità di
+apprendimento per ogni parametro in base alla somma dei suoi gradienti quadrati
+passati. I parametri con gradienti grandi avranno velocità di apprendimento ridotte,
+mentre quelli con gradienti piccoli avranno velocità di apprendimento più elevate.
+Adadelta però, non accumula tutti i gradienti passati. Invece, mantiene una media
+mobile esponenziale dei gradienti quadrati.
+• AdamW: Una variante di Adam con weight decay disaccoppiato (Adam usa pesi di
+decadimento Be ẞ, per i momenti del primo e del secondo ordine). Questo può
+portare a una migliore generalizzazione.
+2
+Le prove effettuate sono state fatte variando solo l'algoritmo di ottimizzazione usato dal
+modello e lasciando gli altri parametri come quelli consigliati dagli autori, sempre a meno
+di d
+model
+e del numero di epoche, ridotti per motivazioni temporali.
+• Learning rate: 10
+• Lambda λ: 3
+• Anomaly ratio: 1
+• Epochs: 2
+• Batch Size: 128
+-4
+4
+Per comprendere a fondo le caratteristiche di ciascuno degli algoritmi testati rimandiamo alla visione della
+documentazione del package torch.optim disponibile qui.
+11
+Bruno Guzzo (Mat. 242504) - UNICAL - Esame di Machine e Deep Learning - A.A. 2023/2024
+• Dimensione d : 64
+model
+• Numero di livelli 1: 3
+• Numero di attention heads h: 8
+•
+Tipo di Kernel: Gaussiano
+•
+Funzione di perdita: Norma L2 (MSE)
+I risultati ottenuti sono riportati nella seguente tabella.
+Accuracy
+Precision
+Recall
+F-Score
+Train Time (S)
+Adam
+0.9863501 0.9194589 0.9540304
+0.9364257
+199.2156
+AdamW 0.9862144 0.9189424 0.9532578
+0.9357856
+199.3804
+SGD
+0.9896608 0.9215214 0.9858357 0.9525943
+199.6484
+Adadelta 0.9875848 0.9199461 0.9662632 0.9425360
+200.2806
+RMSprop 0.9857802
+0.9179940
+0.9499099
+0.9336793
+200.7332
+Come è lecito aspettarsi l'algoritmo Adam è risultato il più performante dal punto di vista
+temporale, confermando ancora una volta la bontà di tale algoritmo nell'addestramento di
+modelli. Inoltre, come visto in precedenza, le piccole fluttuazioni delle metriche inerenti
+alla performance predittiva sono del tutto riconducibili alla casualità dell'implementazione
+del modello sottostante.
+12
+Bruno Guzzo (Mat. 242504) - UNICAL - Esame di Machine e Deep Learning - A.A. 2023/2024
+Uso di RNN in combinazione con Anomaly Transformer
+Reconstruction
+Layer Norm
+++
+RNN
+LSTM
+Layer Norm
++
+Anomaly
+Attention
+sinistra di questo paragrafo.
+Viste le buone prestazioni fornite dal modello, anche a
+seguito di una sua semplificazione, si è pensato se si potesse
+ottenere un miglioramento delle prestazioni mediante
+l'applicazione di reti neurali ricorrenti (RNN) di tipo
+LSTM (Long-Short Term Memory).
+Le Long Short-Term Memory (LSTM) sono un tipo di
+unità ricorrente progettata per superare il problema della
+memoria a breve termine. Le LSTM introducono un
+meccanismo sofisticato di "cancelli" che regolano il flusso di
+informazioni attraverso la rete, consentendo loro di ricordare
+informazioni rilevanti per periodi più lunghi e dimenticare
+quelle irrilevanti.
+Nello specifico, si è pensato di usare uno o più livelli di una
+rete RNN di tipo LSTM al posto del blocco Feed Forward
+per cercare aumentare la capacità del modello di riconoscere
+le anomalie andando a cercare relazioni di lungo/breve
+termine nella ricostruzione della serie ottenuta con il
+meccanismo dell'attenzione. In particolare, l'architettura
+modificata secondo questa idea è riportata nel diagramma a
+Le prove effettuate comprendono l'uso di diversi numeri di livelli della RNN partendo da
+un minimo di 1 e terminando con un massimo di 16. Tali prove sono state effettuate usando
+gli iperparametri consigliati dagli autori e le semplificazioni precedentemente introdotte,
+come si riporta di seguito.
+• Learning rate: 10
+• Lambda λ: 3
+• Anomaly ratio: 1
+• Epochs: 2
+-4
+•
+Batch Size: 128
+•
+Dimensione d
+64
+model
+• Numero di livelli 1: 3
+• Numero di attention heads h: 8
+• Tipo di Kernel: Gaussiano
+•
+Funzione di perdita: Norma L2 (MSE)
+13
+Bruno Guzzo (Mat. 242504) - UNICAL - Esame di Machine e Deep Learning - A.A. 2023/2024
+I risultati ottenuti sono riportati nella seguente tabella
+RNN Layers Accuracy
+Precision
+Recall
+F-Score
+Train Time (S
+0
+0.9874491
+0.9198478 0.9649756
+0.9418714
+199.9097
+1
+0.9892809 0.9203423 0.9833891 0.9508217
+202.9323
+2
+0.9875441 0.9175610 0.9688385
+0.9425028
+208.6800
+4
+0.9880054 0.9212782 0.9689673 0.9445211
+216.3183
+8
+0.9849254 0.9196620 0.9389647 0.9292131
+234.4055
+16
+0.9871642
+0.9189189
+0.9631728 0.9405256
+271.9105
+Dove 0 come numero di livelli RNN indica il modello originale.
+In termini di F-Score i risultati migliori si ottengono nel caso in cui si usa un solo livello
+per la rete RNN LSTM, tuttavia ancora una volta ciò è dovuto alla casualità intrinseca nei
+dettagli implementativi. Infatti, eseguendo il training e il test del modello due volte e
+facendo la media della metrica F-Score si ottiene un valore di 0.9353132, completamente
+in linea con i risultati precedentemente ottenuti senza l'uso di RNN.
+Il modello Anomaly Transformer si conferma dunque non solo robusto rispetto a
+cambiamenti negli iperparametri ma anche a cambiamenti infrastrutturali. Questo risultato
+evidenzia ancora una volta la bontà del modello e dell'idea alla base. Dunque, possiamo
+concludere questa fase di sperimentazione affermando che la strategia minimax alla base,
+volta a minimizzare l'Association Discrepancy per le anomalie, permette di ottenere
+sempre ottimi risultati.
+14
+Bruno Guzzo (Mat. 242504) - UNICAL - Esame di Machine e Deep Learning - A.A. 2023/2024
+Anomaly Attention vs Self Attention per Anomaly Detection
+Come ultima prova sperimentale del lavoro condotto sul modello Anomaly Transformer ci
+siamo chiesti quale sia il reale vantaggio di questo modello rispetto all'uso di un modello
+con sola attenzione classica (transformer) per la ricerca di anomalie. Tale questione, è
+lecita vista l'impatto avuto dal meccanismo dell'attenzione nella sostituzione delle RNN in
+diversi campi applicativi.
+Per confrontare il meccanismo dell'Anomaly Attention con il normale meccanismo
+dell'attenzione (Self Attention) descritto nelle fase iniziali di questo documento, definiamo
+quindi un modello che faccia uso della Multi-Head Attention per ottenere la
+ricostruzione della serie. Essendo il modello Anomaly Transformer praticamente privo di
+decoder, usiamo lo stack di encoder del transformer interpretando l'output come
+ricostruzione della serie. Il modello viene allenato usando l'errore di ricostruzione.
+Formalmente, tale modello è definito come segue.
+-1.
+X' = LayerNorm(FeedForward(A'¯¹) + A'¯¹)
+A' = LayerNorm(MHAttention(X²¯¹) + x^-')
+X
+Dove
+Nxd
+•
+XER
+model
+Nxd
+• AER
+model
+rappresenta l'output del livello l-esimo con d canali
+model
+rappresenta l'output del meccanismo dell'attenzione multi-head.
+Inoltre, ricordando le definizioni precedentemente introdotte
+T
+Attention(Q, K, V) = softmax OK
+V
+d.
+k
+0
+n
+MultiHead(Q, K, V) = Concat(head, ..., headw
+Dove head
+i
+head = Attention(QWKWvw)
+Possiamo definire
+Dove:
+MHAttention(X¹¯¹) = MultiHead(x¹¹Wxwx-w
+Q'
+Nxd
+model
+•
+Q, K, VER
+sono i parametri della self-attention
+15
+Bruno Guzzo (Mat. 242504) - UNICAL - Esame di Machine e Deep Learning - A.A. 2023/2024
+d
+xd
+WWW∈ R model model
+•
+Q' K'
+V
+value V.
+sono le matrici dei pesi per ottenere query Q, key Ke
+Attention Output
+(Reconstruction)
+Layer Norm
++
+Feed
+Forward
+Layer Norm
+In particolare il modello sarà composto da
+E livelli di encoder che produrranno in
+layers
+uscita la ricostruzione della serie. L'architettura
+di tale modello è riportata a sinistra di questo
+paragrafo.
+La funzione di perdita usata per stimare l'errore
+è la norma al quadrato, ovvero:
+L(X, Y) = ||x − x ||
+2
+Dove X è la ricostruzione della serie ottenuta in
+output dal modello finale.
++
+Multi Head
+Attention
+Lx
+In modo analogo a quanto visto per il
+transformer, la
+Feed-Forward rete
+è
+completamente connessa e consiste di due
+trasformazioni lineari con attivazione ReLU nel
+Positional
+Encoding
++
+Input
+Embedding
+↑
+Inputs
+ff
+mezzo. Tale rete ha dimensione def pari a
+4d e formalmente corrisponde alla seguente
+model
+formulazione.
+FFN(X) = max(0,xW₁ + b₁)W₂ + b2
+2
+Per quanto concerne l'embedding e il positional
+encoding vengono usati quelli dell'Anomaly
+Transformer in modo da ridurre al minimo le differenze tra i due e capire concretamente i
+reali vantaggi dell'Anomaly Attention rispetto alla Self-Attention. Anche il numero di
+livelli di stack encoder e di head del meccanismo dell'attenzione sono mantenuti uguali a
+quelli usati nell'Anomaly Transformer: E, = 3e h = 8.
+layer
+La classificazione dei punti anomali è fatta in modo del tutto analoga a quanto avviene per
+il modello Anomaly Transformer, ovvero invece di usare Anomaly Score si usa l'errore di
+ricostruzione.
+5
+Per comprendere i dettagli implementativi del modello descritto rimandiamo alla visione del package
+self_attention presente nel progetto Python di riferimento.
+16
+Bruno Guzzo (Mat. 242504) - UNICAL - Esame di Machine e Deep Learning - A.A. 2023/2024
+AnomalyScore(X) =
+[x-
+X
+i,:
+X
+i,:
+2
+2
+i=1,...,N
+Si userà quindi una soglia 8 sul valore dell'errore di ricostruzione per determinare se il
+punto analizzato è anomalo o meno.
+Per comparare i due modelli abbiamo effettuato diversi cicli di training e test dei modelli
+usando iperparametri identici. In particolare per il modello Anomaly Transformer gli
+iperparametri sono stati lasciati ai valori predefiniti consigliati dagli autori a meno di quelli
+cambiati per la comparazione.
+I risultati ottenuti usando i due modelli fanno esclusivo riferimento al dataset MSL (Mars
+Science Laboratory) per ragioni temporali.
+Modello
+Accuracy
+Precision
+Recall
+F-Score
+Train Time
+Self-attention
+d
+= 128
+model
+0.8515604
+0.4048789
+0.8698172
+0.5525562
+38.5978
+epoch = 3
+Self-attention
+d
+= 512
+model
+0.7999457
+0.3189789
+0.7916559
+0.4547337
+352.9563
+epoch = 5
+Anomaly
+Attention
+d
+= 128 0.9883039
+0.9201558
+0.9734741
+0.9460643
+312.0443
+model
+epoch = 3
+Anomaly
+Attention
+d
+= 512 0.9840706
+0.9182741
+0.9317538
+0.9249648
+645.7070
+model
+epoch = 5
+Basandosi sulla metrica F-Score possiamo concludere che l'uso dell'Anomaly Attention
+garantisce un miglioramento delle prestazioni pari a ≈ 43% rispetto alla self-attention
+classifica. Inoltre, il modello che fa uso della self-attention classica produce valori bassi di
+precision indicando la presenza di numerosi falsi positivi, ovvero punti normali classificati
+come anomali.
+Per comprendere meglio la differenza tra i due modelli si riportano i seguenti due
+diagrammi dove si visualizza l'errore di ricostruzione (e la relativa soglia) per il modello
+con attenzione classica e l'Anomaly Score (e la relativa soglia) per il modello Anomaly
+Transformer.
+17
+Test Energy
+Bruno Guzzo (Mat. 242504) - UNICAL - Esame di Machine e Deep Learning - A.A. 2023/2024
+Test Energy
+350
+300
+250
+200
+150
+100
+50
+Reconstruction Error (Sampled)
+Threshold: 1.3522865
+500
+400
+300
+200
+100
+0
+0
+200
+400
+600
+800
+Data Point Index
+1000
+1200
+1400
+Anomaly Score (Sampled)
+Threshold: 0.0157662
+0
+0
+1000
+2000
+3000
+4000
+Data Point Index
+5000
+6000
+7000
+Nel secondo caso, modello Anomaly Transformer, l'Anomaly Score stabilizza l'errore di
+ricostruzione mediante l'Association Discrepancy rendendo più facile l'identificazione dei
+punti anomali. Al contrario, nel primo caso, è evidente come vi sia un maggiore rumore
+che rende più difficile l'individuazione dei punti anomali, questo produce anche l'elevato
+numero di falsi positivi rilevati nelle precedenti sperimentazioni.
+18
+Bruno Guzzo (Mat. 242504) - UNICAL - Esame di Machine e Deep Learning - A.A. 2023/2024
+Dettagli implementativi e codice sorgente
+Per tutti i dettagli relativi alle implementazioni mostrate in questo documento fare
+riferimento al codice fornito in allegato o pubblicamente disponibile qui.
+Conclusioni
+L'Anomaly Transformer rappresenta un significativo passo avanti nel campo dei modelli
+non supervisionati per il rilevamento di anomalie nelle serie temporali. Sfruttando il
+meccanismo dell'attenzione e il concetto di discrepanza di associazione, questo modello è
+in grado di catturare relazioni complesse e di distinguere in modo efficace anomalie rare da
+normali fluttuazioni nei dati. I risultati sperimentali su diversi benchmark dimostrano la
+superiorità di questa architettura rispetto a metodi precedenti, aprendo nuove prospettive
+per l'applicazione del deep learning nel rilevamento di anomalie in contesti reali.
+19

@@ -1,3 +1,8 @@
+"""
+This script is the main entry point for training and testing the Anomaly Transformer model.
+
+It uses `argparse` to parse command-line arguments, which allows for flexible configuration of the model, training process, and dataset. The script then initializes a `Solver` instance and calls the appropriate method (`train` or `test`) based on the specified mode.
+"""
 import argparse
 
 from torch.backends import cudnn
@@ -7,20 +12,49 @@ from utils.utils import *
 
 
 def str2bool(v):
+    """
+    Converts a string to a boolean value.
+
+    Args:
+        v (str): The input string.
+
+    Returns:
+        bool: True if the string is "true" (case-insensitive), False otherwise.
+    """
     return v.lower() in 'true'
 
 
 def mkdir(directory):
+    """
+    Creates a directory if it does not already exist.
+
+    Args:
+        directory (str): The path of the directory to create.
+    """
     if not os.path.exists(directory):
         os.makedirs(directory)
 
 
 def main(config):
+    """
+    The main function for training and testing the Anomaly Transformer model.
+
+    This function initializes the `Solver` and starts the training or testing process based on the provided configuration.
+
+    Args:
+        config (argparse.Namespace): A namespace object containing the configuration parameters.
+
+    Returns:
+        Solver: The solver instance.
+    """
+    # Set the cuDNN benchmark flag for performance optimization.
     cudnn.benchmark = True
+    # Create the model save directory if it doesn't exist.
     if not os.path.exists(config.model_save_path):
         mkdir(config.model_save_path)
     solver = Solver(vars(config))
 
+    # Start training or testing based on the specified mode.
     if config.mode == 'train':
         solver.train()
     elif config.mode == 'test':
@@ -32,42 +66,43 @@ def main(config):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
 
-    # Learning rate of the optimization algorithm
+    # The learning rate for the optimizer.
     parser.add_argument('--lr', type=float, default=1e-4)
-    # Number of training epoch
+    # The number of training epochs.
     parser.add_argument('--num_epochs', type=int, default=10)
-    # The lambda of the loss function
+    # The lambda parameter for the loss function, balancing the reconstruction and association discrepancy losses.
     parser.add_argument('--k', type=int, default=3)
-    # Size of the sliding window
+    # The size of the sliding window for creating time series segments.
     parser.add_argument('--win_size', type=int, default=100)
-    # Input dimension (Feature number)
+    # The number of input features.
     parser.add_argument('--input_c', type=int, default=38)
-    # Output dimension (Feature number)
+    # The number of output features.
     parser.add_argument('--output_c', type=int, default=38)
-    # Batch size used for data loading -> tuned on VRAM
+    # The batch size for training and testing.
     parser.add_argument('--batch_size', type=int, default=1024)
-    # Type of dataset
+    # The name of the dataset to use.
     parser.add_argument('--dataset', type=str, choices=['MSL', 'PSM', 'SMAP', 'SMD'], default='MSL')
+    # The mode of operation: 'train' or 'test'.
     parser.add_argument('--mode', type=str, default='train', choices=['train', 'test'])
-    # Data folder
+    # The path to the dataset files.
     parser.add_argument('--data_path', type=str, default='./dataset/MSL')
-    # Checkpoints saving config
+    # The path to save the model checkpoints.
     parser.add_argument('--model_save_path', type=str, default='checkpoints')
-    # Anomaly ration percentage for testing
+    # The anomaly ratio for the dataset, used for evaluation.
     parser.add_argument('--anomaly_ratio', type=float, default=4.00)
-    # size of the ANN inner levels
+    # The dimensionality of the model's hidden states.
     parser.add_argument('--d_model', type=int, default=512)
-    # Number of Encoder (Anomaly-Attention) layers
+    # The number of encoder layers in the Anomaly Transformer.
     parser.add_argument('--e_layers', type=int, default=3)
-    # Number of multi head attention
+    # The number of heads in the multi-head attention mechanism.
     parser.add_argument('--n_heads', type=int, default=8)
-    # Kernel type
+    # The type of kernel to use for the prior-association.
     parser.add_argument('--kernel_type_str', type=str, default='GAUSSIAN')
-    # Loss func type
+    # The type of loss function to use.
     parser.add_argument('--loss_func_str', type=str, default='MSE_LOSS')
-    # Optimizer optimizer
+    # The name of the optimizer to use.
     parser.add_argument('--optimizer_name', type=str, default='ADAM')
-    # User LSTM RNN instead of Feed-Forward if not 0
+    # The number of layers in the optional LSTM network. If 0, a feed-forward network is used.
     parser.add_argument('--l_lstm', type=str, default='ADAM')
     config = parser.parse_args()
     args = vars(config)

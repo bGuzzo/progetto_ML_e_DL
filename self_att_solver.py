@@ -1,3 +1,6 @@
+"This module provides the `SelfAttSolver` class, which encapsulates the training and evaluation logic for the baseline Transformer Encoder model with standard self-attention.
+
+This solver is analogous to the `Solver` for the Anomaly Transformer and is used to train and test the baseline model for comparison purposes. It handles the data loading, model building, training loop, and evaluation, using the reconstruction error as the anomaly score."
 import os
 import time
 
@@ -12,6 +15,16 @@ from utils import utils
 
 
 def adjust_learning_rate(optimizer, epoch, lr_):
+    """
+    Adjusts the learning rate of the optimizer during training.
+
+    The learning rate is decayed by a factor of 0.5 at specific epochs.
+
+    Args:
+        optimizer (torch.optim.Optimizer): The optimizer.
+        epoch (int): The current epoch number.
+        lr_ (float): The initial learning rate.
+    """
     lr_adjust = {epoch: lr_ * (0.5 ** ((epoch - 1) // 1))}
     if epoch in lr_adjust.keys():
         lr = lr_adjust[epoch]
@@ -21,9 +34,20 @@ def adjust_learning_rate(optimizer, epoch, lr_):
 
 
 class SelfAttSolver(object):
+    """
+    A solver for training and evaluating the baseline Transformer Encoder model.
+
+    This class handles the entire pipeline, including data loading, model construction, training, and testing. The anomaly detection is based on the reconstruction error of the model.
+    """
     DEFAULTS = {}
 
     def __init__(self, config):
+        """
+        Initializes the SelfAttSolver.
+
+        Args:
+            config (dict): A dictionary containing the configuration parameters for the model, data, and training.
+        """
 
         self.num_epochs = 0
         self.optimizer = None
@@ -45,6 +69,7 @@ class SelfAttSolver(object):
 
         self.model_checkpoint_path = os.path.join(self.model_save_path, str(self.dataset) + '_checkpoint.pth')
 
+        # Initialize the data loaders for training, validation, and testing.
         self.train_loader = get_loader_segment(self.data_path, batch_size=self.batch_size, win_size=self.win_size,
                                                mode='train',
                                                dataset=self.dataset)
@@ -63,6 +88,9 @@ class SelfAttSolver(object):
         self.criterion = nn.MSELoss()
 
     def build_model(self):
+        """
+        Builds the Transformer Encoder model and the optimizer.
+        """
         self.model = TransformerEncoder(enc_in=self.input_c, c_out=self.output_c, d_model=self.d_model, n_heads=self.n_heads, e_layers=self.e_layers)
         self.optimizer = torch.optim.Adam(params=self.model.parameters(), lr=self.lr)
 
@@ -70,9 +98,14 @@ class SelfAttSolver(object):
             self.model.cuda()
 
     def train(self):
+        """
+        Trains the Transformer Encoder model.
+
+        The training process is based on minimizing the reconstruction error (MSE loss) between the input and the model's output.
+        """
         print("====================== TRANSFORMER TRAIN MODE ======================")
 
-        # Clean previous model checkpoint
+        # Clean previous model checkpoint.
         if os.path.isfile(self.model_checkpoint_path):
             os.remove(self.model_checkpoint_path)
             print(f'Removed previous checkpoint at {self.model_checkpoint_path}')
@@ -92,12 +125,12 @@ class SelfAttSolver(object):
                 self.optimizer.zero_grad()
                 iter_count += 1
                 input = input_data.float().to(self.device)
-                # Call model and get reconstruction
+                # Get the reconstructed output from the model.
                 output = self.model(input)
-                # Compute loss -> use reconstruction error only to train the model
+                # The loss is the reconstruction error (MSE).
                 rec_loss = self.criterion(output, input)
                 loss1_list.append(rec_loss.item())
-                # Print metrics
+                # Print training progress.
                 if (i + 1) % 100 == 0:
                     speed = (time.time() - time_now) / iter_count
                     left_time = speed * ((self.num_epochs - epoch) * train_steps - i)
@@ -112,17 +145,23 @@ class SelfAttSolver(object):
             print("Epoch: {0}, Steps: {1} | Train Loss: {2:.7f} ".format(epoch + 1, train_steps, train_loss))
             adjust_learning_rate(self.optimizer, epoch + 1, self.lr)
 
-        # Train End -> Save model checkpoint if not exists
-        # Model not saved yet
+        # Save the model checkpoint after training.
         if not os.path.isfile(self.model_checkpoint_path):
             torch.save(self.model.state_dict(), self.model_checkpoint_path)
             print(f"Saved model checkpoint at {self.model_checkpoint_path}")
 
         print("====================== END TRAINING ======================")
 
-    # Same as Anomaly Transformer
     def test(self):
-        # Load pre-trained model
+        """
+        Tests the trained Transformer Encoder model for anomaly detection.
+
+        The anomaly score is the reconstruction error. The threshold is determined using the percentile of the combined energy of the training and test sets.
+
+        Returns:
+            dict: A dictionary containing the evaluation metrics (accuracy, precision, recall, F-score).
+        """
+        # Load the pre-trained model.
         self.model.load_state_dict(
                 torch.load(
                         os.path.join(str(self.model_save_path), str(self.dataset) + '_checkpoint.pth'), weights_only=True, ))
@@ -132,8 +171,7 @@ class SelfAttSolver(object):
 
         test_criterion = nn.MSELoss(reduce=False)
 
-        # (1) statistic on the train set
-        # Compute the Anomaly Score
+        # (1) Calculate the reconstruction error on the training set.
         attens_energy = []
         for i, (input_data, _) in enumerate(self.train_loader):
             input = input_data.float().to(self.device)
@@ -143,10 +181,9 @@ class SelfAttSolver(object):
             attens_energy.append(loss)
 
         attens_energy = np.concatenate(attens_energy, axis=0).reshape(-1)
-        # Final Anomaly-Score for training set
         train_energy = np.array(attens_energy)
 
-        # (2) find the threshold
+        # (2) Determine the anomaly threshold.
         attens_energy = []
         for i, (input_data, _) in enumerate(self.thre_loader):
             input = input_data.float().to(self.device)
@@ -157,16 +194,13 @@ class SelfAttSolver(object):
 
         attens_energy = np.concatenate(attens_energy, axis=0).reshape(-1)
         test_energy = np.array(attens_energy)
-        # Merged Reconstruction Error for training and model set
         combined_energy = np.concatenate([train_energy, test_energy], axis=0)
-        # Assume (100 - self.anomaly_ratio)% of anomalies in the dataset
         thresh = np.percentile(combined_energy, 100 - self.anomaly_ratio)
         print("Threshold :", thresh)
 
-        # (3) evaluation on the test set
+        # (3) Evaluate the model on the test set.
         test_labels = []
         attens_energy = []
-        # Model evaluation as Anomaly Transformer but using the reconstruction error
         for i, (input_data, labels) in enumerate(self.thre_loader):
             input = input_data.float().to(self.device)
             output = self.model(input)
@@ -181,13 +215,12 @@ class SelfAttSolver(object):
         test_labels = np.array(test_labels)
 
         pred = (test_energy > thresh).astype(int)
-
         gt = test_labels.astype(int)
 
         print("pred:   ", pred.shape)
         print("gt:     ", gt.shape)
 
-        # detection adjustment: please see this issue for more information https://github.com/thuml/Anomaly-Transformer/issues/14
+        # Detection adjustment: a post-processing step to improve the detection of anomalous segments.
         anomaly_state = False
         for i in range(len(gt)):
             if gt[i] == 1 and pred[i] == 1 and not anomaly_state:
@@ -214,6 +247,7 @@ class SelfAttSolver(object):
         print("pred: ", pred.shape)
         print("gt:   ", gt.shape)
 
+        # Calculate and print the evaluation metrics.
         from sklearn.metrics import precision_recall_fscore_support
         from sklearn.metrics import accuracy_score
         accuracy = accuracy_score(gt, pred)
@@ -224,10 +258,9 @@ class SelfAttSolver(object):
                         accuracy, precision,
                         recall, f_score))
 
-        # Plot heist of sampled test_energy with threshold
+        # Plot the sampled reconstruction error with the threshold.
         utils.generate_sampled_plot(test_energy, thresh, title='Reconstruction Error (Sampled)', sampling_rate=50)
 
-        # return accuracy, precision, recall, f_score
         return {
             'accuracy':  accuracy,
             'precision': precision,
@@ -237,6 +270,20 @@ class SelfAttSolver(object):
 
 
 def get_loader_segment(data_path, batch_size, win_size=100, step=100, mode='train', dataset='KDD'):
+    """
+    Factory function to create a DataLoader for a specific time series dataset.
+
+    Args:
+        data_path (str): The path to the dataset directory.
+        batch_size (int): The number of samples per batch.
+        win_size (int): The size of the sliding window.
+        step (int): The step size for the sliding window.
+        mode (str): The mode of operation ('train', 'val', or 'test').
+        dataset (str): The name of the dataset to load.
+
+    Returns:
+        DataLoader: A PyTorch DataLoader instance for the specified dataset.
+    """
     if (dataset == 'SMD'):
         dataset = SMDSegLoader(data_path, win_size, step, mode)
     elif (dataset == 'MSL'):
